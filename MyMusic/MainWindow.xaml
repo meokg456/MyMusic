@@ -5,8 +5,34 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyMusic"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        
-    </Grid>
+        Title="My Music" Height="450" Width="800"
+	   >
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="22"></RowDefinition>
+			<RowDefinition Height="15*"></RowDefinition>
+			<RowDefinition Height="69"></RowDefinition>
+		</Grid.RowDefinitions>
+		<Menu Grid.Row="0">
+			<MenuItem Header="New playlist"></MenuItem>
+			<MenuItem Header="Add a song"></MenuItem>
+		</Menu>
+		<DockPanel Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Canvas.Top="18" LastChildFill="True" Grid.Row="1">
+			<Border BorderThickness="1" BorderBrush="LightGray">
+				<DockPanel Width="160" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" LastChildFill="True">
+					<TextBlock Text="Playlists" Background="LightGray" DockPanel.Dock="Top"></TextBlock>
+					<ListBox></ListBox>
+				</DockPanel>
+			</Border>
+			<ListBox Name="musicListBox" Width="Auto" DockPanel.Dock="Right">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
+		</DockPanel>
+
+		<Canvas Name="musicCanvas" Grid.Row="2" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Height="69"/>
+	</Grid>
 </Window>
