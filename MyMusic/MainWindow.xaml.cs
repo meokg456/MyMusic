@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MyMusic
 {
@@ -27,6 +28,7 @@ namespace MyMusic
 		BitmapImage _pauseBitmapImage = new BitmapImage(new Uri("Icons/pause.png", UriKind.Relative));
 		BitmapImage _playBitmapImage = new BitmapImage(new Uri("Icons/play button.png", UriKind.Relative));
 		MediaPlayer _player = new MediaPlayer();
+		DispatcherTimer _timer;
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -48,6 +50,23 @@ namespace MyMusic
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			PlayLists.ItemsSource = _listPlay;
+			_timer = new DispatcherTimer();
+			_timer.Tick += timer_Tick;
+			_player.MediaOpened += _player_MediaOpened;
+		}
+
+		private void _player_MediaOpened(object sender, EventArgs e)
+		{
+			maxPosition.Text = _player.NaturalDuration.TimeSpan.ToString(@"mm\:ss");
+			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
+			progressSlider.Value = 0;
+			_timer.Interval = TimeSpan.FromMilliseconds(_player.NaturalDuration.TimeSpan.TotalMilliseconds / progressSlider.Maximum);
+		}
+
+		private void timer_Tick(object sender, EventArgs e)
+		{
+			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
+			progressSlider.Value = _player.Position.TotalMilliseconds / _player.NaturalDuration.TimeSpan.TotalMilliseconds * progressSlider.Maximum;
 		}
 
 		private void addSongMenuItem_Click(object sender, RoutedEventArgs e)
@@ -75,27 +94,42 @@ namespace MyMusic
 		}
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
 		{
-			var song = musicListBox.SelectedItem as FileInfo;
-			if (song != null)
+			if (_player.Source != null)
 			{
 				if (_isPlaying == false)
 				{
 					playButtonIcon.Source = _pauseBitmapImage;
-					_player.Open(new Uri(song.FullName));
 					_player.Play();
+					_timer.Start();
+
 				}
 				else
 				{
 					playButtonIcon.Source = _playBitmapImage;
-					_player.Stop();
+					_player.Pause();
+					_timer.Stop();
 				}
 
 			}
 			else
 			{
-				MessageBox.Show("Please choose a song!");
+				MessageBox.Show("Please choose a song! ");
 			}
 			_isPlaying = !_isPlaying;
 		}
+
+		private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var song = musicListBox.SelectedItem as FileInfo;
+			if (_isPlaying == true)
+			{
+				_timer.Stop();
+				_player.Stop();
+				playButtonIcon.Source = _playBitmapImage;
+				_isPlaying = !_isPlaying;
+			}
+			_player.Open(new Uri(song.FullName, UriKind.Absolute));
+		}
+
 	}
 }
