@@ -55,7 +55,8 @@ namespace MyMusic
 			{
 				var playlist = PlayLists.SelectedItem as PlayList;
 				var screen = new Microsoft.Win32.OpenFileDialog();
-				if (screen.ShowDialog() == true)
+                screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
+                if (screen.ShowDialog() == true)
 				{
 					var info = new FileInfo(screen.FileName);
 					playlist.ItemList.Add(info);
