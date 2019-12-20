@@ -87,7 +87,8 @@ namespace MyMusic
 			{
 				var playlist = PlayLists.SelectedItem as PlayList;
 				var screen = new Microsoft.Win32.OpenFileDialog();
-				if (screen.ShowDialog() == true)
+                screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
+                if (screen.ShowDialog() == true)
 				{
 					var info = new FileInfo(screen.FileName);
 					playlist.ItemList.Add(info);
@@ -104,6 +105,7 @@ namespace MyMusic
 			var playList = PlayLists.SelectedItem as PlayList;
 			musicListBox.ItemsSource = playList.ItemList;
 		}
+
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (_player.Source != null)
@@ -130,7 +132,7 @@ namespace MyMusic
 			_isPlaying = !_isPlaying;
 		}
 
-		private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			var song = musicListBox.SelectedItem as FileInfo;
 			if (_isPlaying == true)
