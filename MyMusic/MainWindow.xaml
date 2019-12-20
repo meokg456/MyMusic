@@ -212,7 +212,7 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="22"></RowDefinition>
 			<RowDefinition Height="15*"></RowDefinition>
-			<RowDefinition Height="85"></RowDefinition>
+			<RowDefinition Height="100"></RowDefinition>
 		</Grid.RowDefinitions>
 		<Menu Grid.Row="0">
 			<MenuItem Header="New playlist"></MenuItem>
@@ -237,14 +237,21 @@
 			<Grid Name="musicGrid" Margin="10,10,10,0">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="1*"></RowDefinition>
-					<RowDefinition Height="3*"></RowDefinition>
+					<RowDefinition Height="1*"></RowDefinition>
+					<RowDefinition Height="4*"></RowDefinition>
 				</Grid.RowDefinitions>
 				<Slider Grid.Row="0" VerticalAlignment="Top"  Maximum="1000" Style="{DynamicResource SliderStyle}"></Slider>
 				<StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+					<TextBlock Name="playingTime" Text="00:00" Width="30"></TextBlock>
+					<TextBlock Text=" / "></TextBlock>
+					<TextBlock Name="endTime" Text="00:00" Width="30"></TextBlock>
+				</StackPanel>
+				
+				<StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
 					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" >
 						<Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 					</Button>
-					<Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="40" Width="40" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
+					<Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
 						<Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 					</Button>
 					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5">
