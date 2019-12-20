@@ -30,6 +30,7 @@ namespace MyMusic
 		MediaPlayer _player = new MediaPlayer();
 		DispatcherTimer _timer;
         int _lastIndex = -1;
+        int optionRepeat = 2;
 
         public MainWindow()
 		{
@@ -41,8 +42,18 @@ namespace MyMusic
         {
             var playList = PlayLists.SelectedItem as PlayList;
             var count = playList.ItemList.Count;
-            _lastIndex = (_lastIndex + 1) % count;
-            PlaySelectedIndex(_lastIndex);
+            if (optionRepeat == 1)
+            {
+                _lastIndex = (_lastIndex + 1) % count;
+                PlaySelectedIndex(_lastIndex);
+            }
+            else
+            {
+                var rand = new Random();
+                _lastIndex = rand.Next(count);
+                PlaySelectedIndex(_lastIndex);
+            }
+            
         }
 
         public class PlayList
@@ -121,8 +132,6 @@ namespace MyMusic
 					playButtonIcon.Source = _playBitmapImage;
 					_player.Pause();
 					_timer.Stop();
-                    _isPlaying = false;
-
                 }
 
 			}
@@ -130,7 +139,7 @@ namespace MyMusic
 			{
 				MessageBox.Show("Please choose a song! ");
 			}
-			//_isPlaying = !_isPlaying;
+			_isPlaying = !_isPlaying;
 		}
 
         private void PlaySelectedIndex(int i)
@@ -141,7 +150,6 @@ namespace MyMusic
             _player.Open(new Uri(filename, UriKind.Absolute));
 
             _player.Play();
-            _isPlaying = true;
             _timer.Start();
         }
 
