@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace MyMusic
 {
@@ -26,13 +27,15 @@ namespace MyMusic
 		bool _isPlaying = false;
 		BitmapImage _pauseBitmapImage = new BitmapImage(new Uri("Icons/pause.png", UriKind.Relative));
 		BitmapImage _playBitmapImage = new BitmapImage(new Uri("Icons/play button.png", UriKind.Relative));
+		MediaPlayer _player = new MediaPlayer();
+		DispatcherTimer _timer;
 		public MainWindow()
 		{
 			InitializeComponent();
 		}
 		public class PlayList
 		{
-			public string NamePlayList { get; set; }
+			public string PlayListName { get; set; }
 			public BindingList<FileInfo> ItemList;
 		}
 
@@ -40,13 +43,30 @@ namespace MyMusic
 		int i = 1;
 		private void newPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			_listPlay.Add(new PlayList() { NamePlayList = $"Play List {i}", ItemList = new BindingList<FileInfo>() });
+			_listPlay.Add(new PlayList() { PlayListName = $"Play List {i}", ItemList = new BindingList<FileInfo>() });
 			i++;
 		}
 
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			PlayLists.ItemsSource = _listPlay;
+			_timer = new DispatcherTimer();
+			_timer.Tick += timer_Tick;
+			_player.MediaOpened += _player_MediaOpened;
+		}
+
+		private void _player_MediaOpened(object sender, EventArgs e)
+		{
+			maxPosition.Text = _player.NaturalDuration.TimeSpan.ToString(@"mm\:ss");
+			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
+			progressSlider.Value = 0;
+			_timer.Interval = TimeSpan.FromMilliseconds(_player.NaturalDuration.TimeSpan.TotalMilliseconds / progressSlider.Maximum);
+		}
+
+		private void timer_Tick(object sender, EventArgs e)
+		{
+			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
+			progressSlider.Value = _player.Position.TotalMilliseconds / _player.NaturalDuration.TimeSpan.TotalMilliseconds * progressSlider.Maximum;
 		}
 
 		private void addSongMenuItem_Click(object sender, RoutedEventArgs e)
@@ -75,15 +95,54 @@ namespace MyMusic
 		}
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (_isPlaying == false)
+			if (_player.Source != null)
 			{
-				playButtonIcon.Source = _pauseBitmapImage;
+				if (_isPlaying == false)
+				{
+					playButtonIcon.Source = _pauseBitmapImage;
+					_player.Play();
+					_timer.Start();
+
+				}
+				else
+				{
+					playButtonIcon.Source = _playBitmapImage;
+					_player.Pause();
+					_timer.Stop();
+				}
+
 			}
 			else
 			{
-				playButtonIcon.Source = _playBitmapImage;
+				MessageBox.Show("Please choose a song! ");
 			}
 			_isPlaying = !_isPlaying;
+		}
+
+		private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		{
+			var song = musicListBox.SelectedItem as FileInfo;
+			if (_isPlaying == true)
+			{
+				_timer.Stop();
+				_player.Stop();
+				playButtonIcon.Source = _playBitmapImage;
+				_isPlaying = !_isPlaying;
+			}
+			_player.Open(new Uri(song.FullName, UriKind.Absolute));
+		}
+
+		private void ProgressSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			if (_player.Source != null)
+			{
+				_player.Position = TimeSpan.FromMilliseconds(progressSlider.Value / progressSlider.Maximum * _player.NaturalDuration.TimeSpan.TotalMilliseconds);
+				currentPosition.Text = _player.Position.ToString(@"mm\:ss");
+			}
+			else
+			{
+				progressSlider.Value = 0;
+			}
 		}
 	}
 }

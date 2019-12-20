@@ -174,7 +174,7 @@
 		</Style>
 		<SolidColorBrush x:Key="Button.Static.Background" Color="#FFDDDDDD"/>
 		<SolidColorBrush x:Key="Button.Static.Border" Color="#FF707070"/>
-		<SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FFBEE6FD"/>
+		<SolidColorBrush x:Key="Button.MouseOver.Background" Color="#FF8744FB"/>
 		<SolidColorBrush x:Key="Button.MouseOver.Border" Color="#FF3C7FB1"/>
 		<SolidColorBrush x:Key="Button.Pressed.Background" Color="#FFC4E5F6"/>
 		<SolidColorBrush x:Key="Button.Pressed.Border" Color="#FF2C628B"/>
@@ -206,7 +206,32 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
-
+		<Style x:Key="RectangleButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+			<Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+			<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Padding" Value="1"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="true">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+								<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
+		<local:NameConverter x:Key="converter"></local:NameConverter>
 	</Window.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
@@ -215,52 +240,52 @@
 			<RowDefinition Height="100"></RowDefinition>
 		</Grid.RowDefinitions>
 		<Menu Grid.Row="0">
-            <MenuItem Header="New playlist" Click="newPlaylistMenuItem_Click"></MenuItem>
+			<MenuItem Header="New playlist" Click="newPlaylistMenuItem_Click"></MenuItem>
 			<MenuItem Header="Add a song" Click="addSongMenuItem_Click"></MenuItem>
 		</Menu>
-		<DockPanel Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Canvas.Top="18" LastChildFill="True" Grid.Row="1">
+		<DockPanel Background="Azure" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Canvas.Top="18" LastChildFill="True" Grid.Row="1">
 			<Border BorderThickness="1" BorderBrush="LightGray">
 				<DockPanel Width="160" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" LastChildFill="True">
 					<TextBlock Text="Playlists" Background="LightGray" DockPanel.Dock="Top"></TextBlock>
-					<ListBox Name="PlayLists" SelectionChanged="PlayLists_SelectionChanged">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding NamePlayList}"/>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-                    </ListBox>
+					<ListBox Name="PlayLists" SelectionChanged="PlayLists_SelectionChanged" Background="Transparent">
+						<ListBox.ItemTemplate>
+							<DataTemplate>
+								<TextBlock Text="{Binding PlayListName}"/>
+							</DataTemplate>
+						</ListBox.ItemTemplate>
+					</ListBox>
 				</DockPanel>
 			</Border>
-            <ListBox Name="musicListBox" Width="Auto" DockPanel.Dock="Right">
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name}"/>
-                    </DataTemplate>
+			<ListBox Name="musicListBox" Width="Auto" DockPanel.Dock="Right" Background="Azure" SelectionChanged="MusicListBox_SelectionChanged" >
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Name, Converter={StaticResource converter}}"/>
+					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
 		</DockPanel>
-		<Border Grid.Row="2" Background="#FFD2E2E6">
+		<Border Grid.Row="2" Background="#FF8CDAEE">
 			<Grid Name="musicGrid" Margin="10,10,10,0">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="4*"></RowDefinition>
 				</Grid.RowDefinitions>
-				<Slider Grid.Row="0" VerticalAlignment="Top"  Maximum="1000" Style="{DynamicResource SliderStyle}"></Slider>
+				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="1000000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
 				<StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-					<TextBlock Name="playingTime" Text="00:00" Width="30"></TextBlock>
+					<TextBlock Name="currentPosition" Text="00:00"></TextBlock>
 					<TextBlock Text=" / "></TextBlock>
-					<TextBlock Name="endTime" Text="00:00" Width="30"></TextBlock>
+					<TextBlock Name="maxPosition" Text="00:00"></TextBlock>
 				</StackPanel>
-				
+
 				<StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" >
+					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
 						<Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 					</Button>
 					<Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
 						<Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 					</Button>
-					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5">
+					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
 						<Image Source="Icons/next button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 					</Button>
 				</StackPanel>
