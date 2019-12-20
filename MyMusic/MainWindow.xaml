@@ -271,7 +271,7 @@
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="4*"></RowDefinition>
 				</Grid.RowDefinitions>
-				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="1000000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
+				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="2000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
 				<StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
 					<TextBlock Name="currentPosition" Text="00:00"></TextBlock>
 					<TextBlock Text=" / "></TextBlock>
