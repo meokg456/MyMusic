@@ -131,5 +131,17 @@ namespace MyMusic
 			_player.Open(new Uri(song.FullName, UriKind.Absolute));
 		}
 
+		private void ProgressSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+		{
+			if (_player.Source != null)
+			{
+				_player.Position = TimeSpan.FromMilliseconds(progressSlider.Value / progressSlider.Maximum * _player.NaturalDuration.TimeSpan.TotalMilliseconds);
+				currentPosition.Text = _player.Position.ToString(@"mm\:ss");
+			}
+			else
+			{
+				progressSlider.Value = 0;
+			}
+		}
 	}
 }
