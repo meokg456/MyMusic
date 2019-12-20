@@ -26,13 +26,14 @@ namespace MyMusic
 		bool _isPlaying = false;
 		BitmapImage _pauseBitmapImage = new BitmapImage(new Uri("Icons/pause.png", UriKind.Relative));
 		BitmapImage _playBitmapImage = new BitmapImage(new Uri("Icons/play button.png", UriKind.Relative));
+		MediaPlayer _player = new MediaPlayer();
 		public MainWindow()
 		{
 			InitializeComponent();
 		}
 		public class PlayList
 		{
-			public string NamePlayList { get; set; }
+			public string PlayListName { get; set; }
 			public BindingList<FileInfo> ItemList;
 		}
 
@@ -40,7 +41,7 @@ namespace MyMusic
 		int i = 1;
 		private void newPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			_listPlay.Add(new PlayList() { NamePlayList = $"Play List {i}", ItemList = new BindingList<FileInfo>() });
+			_listPlay.Add(new PlayList() { PlayListName = $"Play List {i}", ItemList = new BindingList<FileInfo>() });
 			i++;
 		}
 
@@ -74,13 +75,25 @@ namespace MyMusic
 		}
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
 		{
-			if (_isPlaying == false)
+			var song = musicListBox.SelectedItem as FileInfo;
+			if (song != null)
 			{
-				playButtonIcon.Source = _pauseBitmapImage;
+				if (_isPlaying == false)
+				{
+					playButtonIcon.Source = _pauseBitmapImage;
+					_player.Open(new Uri(song.FullName));
+					_player.Play();
+				}
+				else
+				{
+					playButtonIcon.Source = _playBitmapImage;
+					_player.Stop();
+				}
+
 			}
 			else
 			{
-				playButtonIcon.Source = _playBitmapImage;
+				MessageBox.Show("Please choose a song!");
 			}
 			_isPlaying = !_isPlaying;
 		}
