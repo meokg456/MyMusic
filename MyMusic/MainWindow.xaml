@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyMusic"
         mc:Ignorable="d"
-        Title="My Music" Height="450" Width="800"
+        Title="My Music" Height="450" Width="800" Loaded="Window_Loaded"
 	   >
 	<Grid>
 		<Grid.RowDefinitions>
@@ -14,25 +14,31 @@
 			<RowDefinition Height="69"></RowDefinition>
 		</Grid.RowDefinitions>
 		<Menu Grid.Row="0">
-			<MenuItem Header="New playlist"></MenuItem>
-			<MenuItem Header="Add a song"></MenuItem>
+            <MenuItem Header="New playlist" Click="newPlaylistMenuItem_Click"></MenuItem>
+			<MenuItem Header="Add a song" Click="addSongMenuItem_Click"></MenuItem>
 		</Menu>
-		<DockPanel LastChildFill="True" Grid.Row="1">
+		<DockPanel Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Canvas.Top="18" LastChildFill="True" Grid.Row="1">
 			<Border BorderThickness="1" BorderBrush="LightGray">
-				<DockPanel Width="160" LastChildFill="True">
+				<DockPanel Width="160" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" LastChildFill="True">
 					<TextBlock Text="Playlists" Background="LightGray" DockPanel.Dock="Top"></TextBlock>
-					<ListBox></ListBox>
+					<ListBox Name="PlayLists" SelectionChanged="PlayLists_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding NamePlayList}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
 				</DockPanel>
 			</Border>
-			<ListBox Name="musicListBox" Width="Auto" DockPanel.Dock="Right">
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-
-					</DataTemplate>
+            <ListBox Name="musicListBox" Width="Auto" DockPanel.Dock="Right">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}"/>
+                    </DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
 		</DockPanel>
 
-		<Canvas Name="musicCanvas" Grid.Row="2" Height="69"/>
+		<Canvas Name="musicCanvas" Grid.Row="2" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Height="69"/>
 	</Grid>
 </Window>
