@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:MyMusic"
         mc:Ignorable="d"
-        Title="My Music" Height="450" Width="800" Loaded="Window_Loaded"
+        Title="My Music" Height="433.5" Width="800" Loaded="Window_Loaded"
 	   >
 	<Window.Resources>
 		<SolidColorBrush x:Key="SliderThumb.Static.Foreground" Color="#FF1E90FF"/>
@@ -237,7 +237,7 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="22"></RowDefinition>
 			<RowDefinition Height="15*"></RowDefinition>
-			<RowDefinition Height="100"></RowDefinition>
+			<RowDefinition Height="150"></RowDefinition>
 		</Grid.RowDefinitions>
 		<Menu Grid.Row="0">
 			<MenuItem Header="New playlist" Click="newPlaylistMenuItem_Click"></MenuItem>
@@ -270,6 +270,7 @@
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="4*"></RowDefinition>
+                    <RowDefinition Height="4*"></RowDefinition>
 				</Grid.RowDefinitions>
 				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="2000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
 				<StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
@@ -278,19 +279,29 @@
 					<TextBlock Name="maxPosition" Text="00:00"></TextBlock>
 				</StackPanel>
 
-				<StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
-						<Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-					</Button>
-					<Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
-						<Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-					</Button>
-					<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
-						<Image Source="Icons/next button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-					</Button>
-				</StackPanel>
-
-			</Grid>
+                <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                    <Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
+                        <Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
+                        <Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                    <Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
+                        <Image Source="Icons/next button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+                    </Button>
+                </StackPanel>
+                <StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                    <Button Name="selfRepeat" Click="SelfRepeat_Click"  VerticalAlignment="Center" HorizontalAlignment="Center" Height="40" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="0,0,100,0" Style="{DynamicResource RectangleButtonStyle}">
+                        <Image Source="Icons/repeat0.png" Stretch="Fill"></Image>
+                    </Button>
+                    <Button Name="sequenRepeat" Click="SequenRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="40" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="0,0,100,0" Style="{DynamicResource RectangleButtonStyle}">
+                        <Image Source="Icons/repeat1.png" Stretch="Fill"></Image>
+                    </Button>
+                    <Button Name="randomRepeat" Click="RandomRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="40" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
+                        <Image Source="Icons/repeat3.png" Stretch="Fill"></Image>
+                    </Button>
+                </StackPanel>
+            </Grid>
 		</Border>
 	</Grid>
 </Window>
