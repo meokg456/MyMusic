@@ -235,7 +235,7 @@
 	</Window.Resources>
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="22"></RowDefinition>
+			<RowDefinition Height="18"></RowDefinition>
 			<RowDefinition Height="15*"></RowDefinition>
 			<RowDefinition Height="100"></RowDefinition>
 		</Grid.RowDefinitions>
@@ -244,9 +244,9 @@
 			<MenuItem Header="Add a song" Click="addSongMenuItem_Click"></MenuItem>
 		</Menu>
 		<DockPanel Background="Azure" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Canvas.Top="18" LastChildFill="True" Grid.Row="1">
-			<Border BorderThickness="1" BorderBrush="LightGray">
+			<Border BorderThickness="1" BorderBrush="#FF8CDAEE">
 				<DockPanel Width="160" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" LastChildFill="True">
-					<TextBlock Text="Playlists" Background="LightGray" DockPanel.Dock="Top"></TextBlock>
+					<TextBlock Text="Playlists" Background="#FF8CDAEE" DockPanel.Dock="Top"></TextBlock>
 					<ListBox Name="PlayLists" SelectionChanged="PlayLists_SelectionChanged" Background="Transparent">
 						<ListBox.ItemTemplate>
 							<DataTemplate>
@@ -256,7 +256,7 @@
 					</ListBox>
 				</DockPanel>
 			</Border>
-			<ListBox Name="musicListBox" Width="Auto" DockPanel.Dock="Right" Background="Azure" SelectionChanged="MusicListBox_SelectionChanged" >
+			<ListBox Name="musicListBox" Width="Auto" DockPanel.Dock="Right" Background="Azure" SelectionChanged="MusicListBox_SelectionChanged" BorderBrush="#FF8CDAEE">
 				<ListBox.ItemTemplate>
 					<DataTemplate>
 						<TextBlock Text="{Binding Name, Converter={StaticResource converter}}"/>
