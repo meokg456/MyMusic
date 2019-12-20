@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -35,7 +36,6 @@ namespace MyMusic
         public MainWindow()
 		{
 			InitializeComponent();
-            _player.MediaEnded += _player_MediaEnded;
 		}
 
         private void _player_MediaEnded(object sender, EventArgs e)
@@ -76,6 +76,17 @@ namespace MyMusic
 			_timer = new DispatcherTimer();
 			_timer.Tick += timer_Tick;
 			_player.MediaOpened += _player_MediaOpened;
+			_player.MediaEnded += _player_MediaEnded;
+		}
+
+		private void _player_MediaEnded(object sender, EventArgs e)
+		{
+			var index = musicListBox.SelectedIndex;
+			var playlist = PlayLists.SelectedItem as PlayList;
+			index++;
+			if (index >= playlist.ItemList.Count) index = 0;
+			musicListBox.SelectedItem = playlist.ItemList[index];
+			MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
 		}
 
 		private void _player_MediaOpened(object sender, EventArgs e)
@@ -122,17 +133,18 @@ namespace MyMusic
 			if (_player.Source != null)
 			{
 				if (_isPlaying == false)
-                {
-                    playButtonIcon.Source = _pauseBitmapImage;
-                    _lastIndex = musicListBox.SelectedIndex;
-                    PlaySelectedIndex(_lastIndex);
-                }
-                else
+				{
+					playButtonIcon.Source = _pauseBitmapImage;
+					_player.Play();
+					_timer.Start();
+
+				}
+				else
 				{
 					playButtonIcon.Source = _playBitmapImage;
 					_player.Pause();
 					_timer.Stop();
-                }
+				}
 
 			}
 			else
@@ -155,16 +167,20 @@ namespace MyMusic
 
         private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-            var song = musicListBox.SelectedItem as FileInfo;
-            if (_isPlaying == true)
-            {
-                _timer.Stop();
-                _player.Stop();
-                playButtonIcon.Source = _playBitmapImage;
-                _isPlaying = !_isPlaying;
-            }
-            _player.Open(new Uri(song.FullName, UriKind.Absolute));
-        }
+			var song = musicListBox.SelectedItem as FileInfo;
+			if (_isPlaying == true)
+			{
+				_timer.Stop();
+				_player.Stop();
+				_player.Close();
+				playButtonIcon.Source = _playBitmapImage;
+				_isPlaying = !_isPlaying;
+			}
+			_player.Open(new Uri(song.FullName, UriKind.Absolute));
+			while (_player.NaturalDuration.HasTimeSpan == false);
+			
+			PlayButton_Click(sender, e);
+		}
 
 		private void ProgressSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
