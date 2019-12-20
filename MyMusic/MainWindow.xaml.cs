@@ -23,6 +23,9 @@ namespace MyMusic
 	/// </summary>
 	public partial class MainWindow : Window
 	{
+		bool _isPlaying = false;
+		BitmapImage _pauseBitmapImage = new BitmapImage(new Uri("Icons/pause.png", UriKind.Relative));
+		BitmapImage _playBitmapImage = new BitmapImage(new Uri("Icons/play button.png", UriKind.Relative));
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -70,4 +73,23 @@ namespace MyMusic
             musicListBox.ItemsSource = playList.ItemList;
         }
     }
+
+		private void Window_Loaded(object sender, RoutedEventArgs e)
+		{
+			
+		}
+
+		private void PlayButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (_isPlaying == false)
+			{
+				playButtonIcon.Source = _pauseBitmapImage;
+			}
+			else
+			{
+				playButtonIcon.Source = _playBitmapImage;
+			}
+			_isPlaying = !_isPlaying;
+		}
+	}
 }

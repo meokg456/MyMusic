@@ -94,5 +94,17 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\next button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\play button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\previous button.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\pause.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
