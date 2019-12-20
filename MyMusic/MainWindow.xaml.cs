@@ -29,11 +29,23 @@ namespace MyMusic
 		BitmapImage _playBitmapImage = new BitmapImage(new Uri("Icons/play button.png", UriKind.Relative));
 		MediaPlayer _player = new MediaPlayer();
 		DispatcherTimer _timer;
-		public MainWindow()
+        int _lastIndex = -1;
+
+        public MainWindow()
 		{
 			InitializeComponent();
+            _player.MediaEnded += _player_MediaEnded;
 		}
-		public class PlayList
+
+        private void _player_MediaEnded(object sender, EventArgs e)
+        {
+            var playList = PlayLists.SelectedItem as PlayList;
+            var count = playList.ItemList.Count;
+            _lastIndex = (_lastIndex + 1) % count;
+            PlaySelectedIndex(_lastIndex);
+        }
+
+        public class PlayList
 		{
 			public string PlayListName { get; set; }
 			public BindingList<FileInfo> ItemList;
@@ -93,44 +105,58 @@ namespace MyMusic
 			var playList = PlayLists.SelectedItem as PlayList;
 			musicListBox.ItemsSource = playList.ItemList;
 		}
+
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (_player.Source != null)
 			{
 				if (_isPlaying == false)
-				{
-					playButtonIcon.Source = _pauseBitmapImage;
-					_player.Play();
-					_timer.Start();
-
-				}
-				else
+                {
+                    playButtonIcon.Source = _pauseBitmapImage;
+                    _lastIndex = musicListBox.SelectedIndex;
+                    PlaySelectedIndex(_lastIndex);
+                }
+                else
 				{
 					playButtonIcon.Source = _playBitmapImage;
 					_player.Pause();
 					_timer.Stop();
-				}
+                    _isPlaying = false;
+
+                }
 
 			}
 			else
 			{
 				MessageBox.Show("Please choose a song! ");
 			}
-			_isPlaying = !_isPlaying;
+			//_isPlaying = !_isPlaying;
 		}
 
-		private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void PlaySelectedIndex(int i)
+        {
+            var playList = PlayLists.SelectedItem as PlayList;
+            string filename = playList.ItemList[i].FullName;
+
+            _player.Open(new Uri(filename, UriKind.Absolute));
+
+            _player.Play();
+            _isPlaying = true;
+            _timer.Start();
+        }
+
+        private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var song = musicListBox.SelectedItem as FileInfo;
-			if (_isPlaying == true)
-			{
-				_timer.Stop();
-				_player.Stop();
-				playButtonIcon.Source = _playBitmapImage;
-				_isPlaying = !_isPlaying;
-			}
-			_player.Open(new Uri(song.FullName, UriKind.Absolute));
-		}
+            var song = musicListBox.SelectedItem as FileInfo;
+            if (_isPlaying == true)
+            {
+                _timer.Stop();
+                _player.Stop();
+                playButtonIcon.Source = _playBitmapImage;
+                _isPlaying = !_isPlaying;
+            }
+            _player.Open(new Uri(song.FullName, UriKind.Absolute));
+        }
 
 		private void ProgressSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
