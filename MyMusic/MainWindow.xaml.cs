@@ -19,11 +19,15 @@ namespace MyMusic
 		BitmapImage _playBitmapImage = new BitmapImage(new Uri("Icons/play button.png", UriKind.Relative));
 		MediaPlayer _player = new MediaPlayer();
 		DispatcherTimer _timer;
-		public MainWindow()
+        int optionRepeat = -1;
+
+        public MainWindow()
 		{
 			InitializeComponent();
 		}
-		public class PlayList
+
+        
+        public class PlayList
 		{
 			public string PlayListName { get; set; }
 			public BindingList<FileInfo> ItemList;
@@ -49,13 +53,36 @@ namespace MyMusic
 
 		private void _player_MediaEnded(object sender, EventArgs e)
 		{
-			var index = musicListBox.SelectedIndex;
-			var playlist = PlayLists.SelectedItem as PlayList;
-			index++;
-			if (index >= playlist.ItemList.Count) index = 0;
-			musicListBox.SelectedItem = playlist.ItemList[index];
-			MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
-		}
+            var index = musicListBox.SelectedIndex;
+            var playlist = PlayLists.SelectedItem as PlayList;
+            var count = playlist.ItemList.Count;
+
+            if (optionRepeat == 0)
+            {
+                musicListBox.SelectedItem = playlist.ItemList[index];
+                MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+            }
+            else if (optionRepeat == 1)
+            {
+                index = (index + 1) % count;
+                musicListBox.SelectedItem = playlist.ItemList[index];
+                MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+            }
+            else if (optionRepeat == 2)
+            {
+                var oldIndex = index;
+
+                var rand = new Random();
+                do
+                {
+                    index = rand.Next(count);
+                } while (index == oldIndex);
+                
+                musicListBox.SelectedItem = playlist.ItemList[index];
+                MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+            }
+            else return;
+        }
 
 		private void _player_MediaOpened(object sender, EventArgs e)
 		{
@@ -113,7 +140,6 @@ namespace MyMusic
 					_player.Pause();
 					_timer.Stop();
 				}
-
 			}
 			else
 			{
@@ -151,5 +177,20 @@ namespace MyMusic
 				progressSlider.Value = 0;
 			}
 		}
-	}
+
+        private void SelfRepeat_Click(object sender, RoutedEventArgs e)
+        {
+            optionRepeat = 0;
+        }
+
+        private void SequenRepeat_Click(object sender, RoutedEventArgs e)
+        {
+            optionRepeat = 1;
+        }
+
+        private void RandomRepeat_Click(object sender, RoutedEventArgs e)
+        {
+            optionRepeat = 2;
+        }
+    }
 }
