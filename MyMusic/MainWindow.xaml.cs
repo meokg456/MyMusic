@@ -95,7 +95,7 @@ namespace MyMusic
                 do
                 {
                     index = rand.Next(count);
-                } while (index == oldIndex);
+                } while (index == oldIndex && count > 1);
                 
                 musicListBox.SelectedItem = playlist.ItemList[index];
                 MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
