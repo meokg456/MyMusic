@@ -265,6 +265,14 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+		<Storyboard x:Key="SelectedItemAnimation">
+			<ColorAnimation Duration="0:0:1"
+						 Storyboard.TargetName="Bd"
+						 Storyboard.TargetProperty="Background.Color" From="Cyan" To="DarkCyan" RepeatBehavior="Forever"/>
+			<DoubleAnimation Storyboard.TargetName="RotateImage"
+						  Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" 
+						  From="0" To="360" BeginTime="00:00:00.000" Duration="00:00:05.000"  RepeatBehavior="Forever"/>
+		</Storyboard>
 		<local:NameConverter x:Key="converter"></local:NameConverter>
 		<SolidColorBrush x:Key="Item.MouseOver.Background" Color="#668744FB"/>
 		<SolidColorBrush x:Key="Item.MouseOver.Border" Color="#a826A0Da"/>
@@ -295,7 +303,6 @@
 							</StackPanel>
 						</Border>
 						<ControlTemplate.Triggers>
-
 							<MultiTrigger>
 								<MultiTrigger.Conditions>
 									<Condition Property="IsMouseOver" Value="True"/>
@@ -316,15 +323,8 @@
 									</Setter.Value>
 								</Setter>
 								<MultiTrigger.EnterActions>
-									<BeginStoryboard>
-										<Storyboard>
-											<ColorAnimation Duration="0:0:1"
-														 Storyboard.TargetName="Bd"
-														 Storyboard.TargetProperty="Background.Color" From="Cyan" To="DarkCyan" RepeatBehavior="Forever"/>
-											<DoubleAnimation Storyboard.TargetName="RotateImage" 
-														  Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" 
-														  From="0" To="360" BeginTime="00:00:00.000" Duration="00:00:05.000"  RepeatBehavior="Forever"/>
-										</Storyboard>
+									<BeginStoryboard Storyboard="{StaticResource SelectedItemAnimation}">
+
 									</BeginStoryboard>
 								</MultiTrigger.EnterActions>
 							</MultiTrigger>
@@ -341,15 +341,8 @@
 									</Setter.Value>
 								</Setter>
 								<MultiTrigger.EnterActions>
-									<BeginStoryboard>
-										<Storyboard>
-											<ColorAnimation Duration="0:0:1"
-														 Storyboard.TargetName="Bd"
-														 Storyboard.TargetProperty="Background.Color" From="Cyan" To="LightCoral" RepeatBehavior="Forever"/>
-											<DoubleAnimation Storyboard.TargetName="RotateImage" 
-														  Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)" 
-														  From="0" To="360" BeginTime="00:00:00.000" Duration="00:00:05.000"  RepeatBehavior="Forever"/>
-										</Storyboard>
+									<BeginStoryboard Storyboard="{StaticResource SelectedItemAnimation}">
+
 									</BeginStoryboard>
 								</MultiTrigger.EnterActions>
 
@@ -476,7 +469,7 @@
 				</StackPanel>
 
 				<StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-					<Border CornerRadius="25" BorderThickness="1" BorderBrush="SteelBlue" Margin="5" Background="#FF40B8D6" Padding="0,0,5,0">
+					<Border CornerRadius="25" BorderThickness="1" BorderBrush="SteelBlue" Margin="3" Background="#FF40B8D6" Padding="0,0,5,0">
 						<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
 							<Button Name="selfRepeat" Click="SelfRepeat_Click"  VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
 								<Image Source="Icons/repeat0.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
@@ -492,7 +485,8 @@
 								<Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 							</Button>
 							<Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
-								<Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+								<Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality">
+								</Image>
 							</Button>
 							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}" Click="NextButton_Click">
 								<Image Source="Icons/next button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
