@@ -68,7 +68,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type RepeatButton}">
-						<Rectangle SnapsToDevicePixels="True" Fill="{StaticResource SliderThumb.ThumbAfter.Foreground}" Height="4"  Margin="0,2,0,0" Grid.Row="1" VerticalAlignment="center"/>
+						<Rectangle SnapsToDevicePixels="True" Fill="{StaticResource SliderThumb.ThumbAfter.Foreground}" Height="4"  Margin="0,1.8,0,0" Grid.Row="1" VerticalAlignment="center"/>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
