@@ -125,5 +125,14 @@
   <ItemGroup>
     <Resource Include="music.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\playlist.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\song.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\choose icon.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

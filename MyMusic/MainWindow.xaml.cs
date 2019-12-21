@@ -56,6 +56,7 @@ namespace MyMusic
 		{
 			PlayLists.ItemsSource = _listPlay;
 			_timer = new DispatcherTimer();
+			_timer.Interval = TimeSpan.FromMilliseconds(250);
 			_timer.Tick += timer_Tick;
 			_player.MediaOpened += _player_MediaOpened;
 			_player.MediaEnded += _player_MediaEnded;
@@ -72,10 +73,7 @@ namespace MyMusic
 			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
-				playButtonIcon.Source = _playBitmapImage;
-				_player.Pause();
-				_timer.Stop();
-				_isPlaying = false;
+				PlayButton_Click(sender, e as RoutedEventArgs);
 				progressSlider.Value = 0;
 				ProgressSlider_ValueChanged(sender, e as RoutedPropertyChangedEventArgs<double>);
 				return;
@@ -107,7 +105,7 @@ namespace MyMusic
 			maxPosition.Text = _player.NaturalDuration.TimeSpan.ToString(@"mm\:ss");
 			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
 			progressSlider.Value = 0;
-			_timer.Interval = TimeSpan.FromMilliseconds(_player.NaturalDuration.TimeSpan.TotalMilliseconds / progressSlider.Maximum);
+			//_timer.Interval = TimeSpan.FromMilliseconds(_player.NaturalDuration.TimeSpan.TotalMilliseconds / progressSlider.Maximum);
 		}
 
 		private void timer_Tick(object sender, EventArgs e)
@@ -122,11 +120,15 @@ namespace MyMusic
 			{
 				var playlist = PlayLists.SelectedItem as PlayList;
 				var screen = new Microsoft.Win32.OpenFileDialog();
+				screen.Multiselect = true;
                 screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
                 if (screen.ShowDialog() == true)
 				{
-					var info = new FileInfo(screen.FileName);
-					playlist.ItemList.Add(info);
+					foreach (var fileName in screen.FileNames)
+					{
+						var info = new FileInfo(fileName);
+						playlist.ItemList.Add(info);
+					}
 				}
 			}
 			else
@@ -257,6 +259,7 @@ namespace MyMusic
 			{
 				muteButtonIcon.Source = _volumeBitmapImage;
 			}
+			
 		}
 
 		private void MuteSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -264,10 +267,12 @@ namespace MyMusic
 			_player.Volume = volumeSlider.Value / volumeSlider.Maximum;
 		}
 		Stack<FileInfo> _playedSongs = new Stack<FileInfo>();
+		Stack<FileInfo> _nextSongs = new Stack<FileInfo>();
 		private void PreviousButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(_playedSongs.Count > 0)
 			{
+				_nextSongs.Push(musicListBox.SelectedItem as FileInfo);
 				musicListBox.SelectedItem = _playedSongs.Pop();
 				MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
 			}
@@ -287,8 +292,18 @@ namespace MyMusic
 				MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
 			}
 			else
-			{ 
-				_player_MediaEnded(sender, e);
+			{
+				if (_nextSongs.Count == 0)
+				{
+					_player_MediaEnded(sender, e);
+				}
+				else
+				{
+					_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
+					musicListBox.SelectedItem = _nextSongs.Pop();
+					MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+					
+				}
 			}
 		}
 	}
