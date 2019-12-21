@@ -9,10 +9,10 @@
 	   >
 	<Window.Resources>
 		<SolidColorBrush x:Key="SliderThumb.Static.Foreground" Color="#FF1E90FF"/>
-		<SolidColorBrush x:Key="SliderThumb.MouseOver.Background" Color="#FF79B7F5"/>
-		<SolidColorBrush x:Key="SliderThumb.MouseOver.Border" Color="#FF83BCF5"/>
-		<SolidColorBrush x:Key="SliderThumb.Pressed.Background" Color="#FF7DC0FB"/>
-		<SolidColorBrush x:Key="SliderThumb.Pressed.Border" Color="#FF5DA3EA"/>
+		<SolidColorBrush x:Key="SliderThumb.MouseOver.Background" Color="#FF8744FB"/>
+		<SolidColorBrush x:Key="SliderThumb.MouseOver.Border" Color="#FF8744FB"/>
+		<SolidColorBrush x:Key="SliderThumb.Pressed.Background" Color="#FF8744FB"/>
+		<SolidColorBrush x:Key="SliderThumb.Pressed.Border" Color="#FF8744FB"/>
 		<SolidColorBrush x:Key="SliderThumb.Disabled.Background" Color="#FFF0F0F0"/>
 		<SolidColorBrush x:Key="SliderThumb.Disabled.Border" Color="#FFD9D9D9"/>
 		<SolidColorBrush x:Key="SliderThumb.Static.Background" Color="#FFFF0000"/>
@@ -271,7 +271,7 @@
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="4*"></RowDefinition>
 				</Grid.RowDefinitions>
-				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="2000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
+				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="100000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
 				<StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
 					<TextBlock Name="currentPosition" Text="00:00"></TextBlock>
 					<TextBlock Text=" / "></TextBlock>
