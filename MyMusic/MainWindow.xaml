@@ -6,6 +6,7 @@
         xmlns:local="clr-namespace:MyMusic"
         mc:Ignorable="d"
         Title="My Music" Height="433.5" Width="800" Loaded="Window_Loaded"
+	   Icon="Icons/music.png"
 	   >
 	<Window.Resources>
 		<SolidColorBrush x:Key="SliderThumb.Static.Foreground" Color="#FF1E90FF"/>
