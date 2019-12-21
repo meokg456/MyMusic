@@ -67,7 +67,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type RepeatButton}">
-						<Rectangle SnapsToDevicePixels="True" Fill="{StaticResource SliderThumb.ThumbAfter.Foreground}" Height="3"/>
+						<Rectangle SnapsToDevicePixels="True" Fill="{StaticResource SliderThumb.ThumbAfter.Foreground}" Height="4"  Margin="0,2,0,0" Grid.Row="1" VerticalAlignment="center"/>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
@@ -80,7 +80,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type RepeatButton}">
-						<Border BorderBrush="{StaticResource SliderThumb.Track.Border}" BorderThickness="0,1,1,1" Background="{StaticResource SliderThumb.Track.Background}" Height="4.0" Margin="5,0" Grid.Row="1" VerticalAlignment="center"></Border>
+						<Border BorderBrush="{StaticResource SliderThumb.Track.Border}" BorderThickness="0,1,1,1" Background="{StaticResource SliderThumb.Track.Background}" Height="4.0" Margin="-1,5.5,5,5" Grid.Row="1" VerticalAlignment="center"></Border>
 					</ControlTemplate>
 				</Setter.Value>
 			</Setter>
@@ -114,7 +114,7 @@
 					</Grid.RowDefinitions>
 					<TickBar x:Name="TopTick" Fill="{TemplateBinding Foreground}" Height="4" Margin="0,0,0,6.322" Placement="Top" Grid.Row="0" Visibility="Collapsed" Grid.RowSpan="2"/>
 					<TickBar x:Name="BottomTick" Fill="{TemplateBinding Foreground}" Height="4" Margin="0,2,0,-6" Placement="Bottom" Grid.Row="3" Visibility="Collapsed"/>
-					<Border x:Name="TrackBackground" BorderBrush="{StaticResource SliderThumb.Track.Border}" BorderThickness="0,1" Background="{StaticResource SliderThumb.Track.Background}" Height="4.0" Margin="5,6,5,0.322" Grid.Row="1" VerticalAlignment="center">
+					<Border x:Name="TrackBackground" BorderBrush="{StaticResource SliderThumb.Track.Border}" BorderThickness="0,1" Background="{StaticResource SliderThumb.Track.Background}" Height="4.0" Margin="5,6,5,0" Grid.Row="1" VerticalAlignment="center">
 						<Canvas Margin="-6,-1">
 							<Rectangle x:Name="PART_SelectionRange" Fill="{DynamicResource {x:Static SystemColors.HighlightBrushKey}}" Height="4.0" Visibility="Hidden"/>
 						</Canvas>
@@ -206,6 +206,39 @@
 				</Setter.Value>
 			</Setter>
 		</Style>
+		<Style x:Key="RepeatButtonStyle" TargetType="{x:Type Button}">
+			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
+			<Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
+			<Setter Property="BorderBrush" Value="{StaticResource Button.Static.Border}"/>
+			<Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>
+			<Setter Property="BorderThickness" Value="1"/>
+			<Setter Property="HorizontalContentAlignment" Value="Center"/>
+			<Setter Property="VerticalContentAlignment" Value="Center"/>
+			<Setter Property="Padding" Value="1"/>
+			<Setter Property="Template">
+				<Setter.Value>
+					<ControlTemplate TargetType="{x:Type Button}">
+						<Border CornerRadius="90" x:Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" SnapsToDevicePixels="true">
+							<ContentPresenter x:Name="contentPresenter" Focusable="False" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" RecognizesAccessKey="True" SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+						</Border>
+						<ControlTemplate.Triggers>
+							<Trigger Property="IsMouseOver" Value="true">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+								<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+							</Trigger>
+							<Trigger Property="IsPressed" Value="true">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+								<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+							</Trigger>
+							<Trigger Property="Tag" Value="chose">
+								<Setter Property="Background" TargetName="border" Value="{StaticResource Button.MouseOver.Background}"/>
+								<Setter Property="BorderBrush" TargetName="border" Value="{StaticResource Button.MouseOver.Border}"/>
+							</Trigger>
+						</ControlTemplate.Triggers>
+					</ControlTemplate>
+				</Setter.Value>
+			</Setter>
+		</Style>
 		<Style x:Key="RectangleButtonStyle" TargetType="{x:Type Button}">
 			<Setter Property="FocusVisualStyle" Value="{StaticResource FocusVisual}"/>
 			<Setter Property="Background" Value="{StaticResource Button.Static.Background}"/>
@@ -237,7 +270,7 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="18"></RowDefinition>
 			<RowDefinition Height="15*"></RowDefinition>
-			<RowDefinition Height="150"></RowDefinition>
+			<RowDefinition Height="110"></RowDefinition>
 		</Grid.RowDefinitions>
 		<Menu Grid.Row="0">
 			<MenuItem Header="New playlist" Click="newPlaylistMenuItem_Click"></MenuItem>
@@ -269,8 +302,7 @@
 				<Grid.RowDefinitions>
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="1*"></RowDefinition>
-					<RowDefinition Height="4*"></RowDefinition>
-                    <RowDefinition Height="4*"></RowDefinition>
+					<RowDefinition Height="5*"></RowDefinition>
 				</Grid.RowDefinitions>
 				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="100000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
 				<StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
@@ -278,30 +310,39 @@
 					<TextBlock Text=" / "></TextBlock>
 					<TextBlock Name="maxPosition" Text="00:00"></TextBlock>
 				</StackPanel>
+				
+				<StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+					<Border CornerRadius="25" BorderThickness="1" BorderBrush="SteelBlue" Margin="5" Background="#FF40B8D6" Padding="0,0,5,0">
+						<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+							<Button Name="selfRepeat" Click="SelfRepeat_Click"  VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
+								<Image Source="Icons/repeat0.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
+							<Button Name="sequenRepeat" Click="SequenRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
+								<Image Source="Icons/repeat1.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
+							<Button Name="randomRepeat" Click="RandomRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
+								<Image Source="Icons/repeat3.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
 
-                <StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                    <Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
-                        <Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                    </Button>
-                    <Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
-                        <Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                    </Button>
-                    <Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
-                        <Image Source="Icons/next button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-                    </Button>
-                </StackPanel>
-                <StackPanel Grid.Row="3" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-                    <Button Name="selfRepeat" Click="SelfRepeat_Click"  VerticalAlignment="Center" HorizontalAlignment="Center" Height="40" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="0,0,100,0" Style="{DynamicResource RectangleButtonStyle}">
-                        <Image Source="Icons/repeat0.png" Stretch="Fill"></Image>
-                    </Button>
-                    <Button Name="sequenRepeat" Click="SequenRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="40" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="0,0,100,0" Style="{DynamicResource RectangleButtonStyle}">
-                        <Image Source="Icons/repeat1.png" Stretch="Fill"></Image>
-                    </Button>
-                    <Button Name="randomRepeat" Click="RandomRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="40" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
-                        <Image Source="Icons/repeat3.png" Stretch="Fill"></Image>
-                    </Button>
-                </StackPanel>
-            </Grid>
+							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
+								<Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
+							<Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
+								<Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
+							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
+								<Image Source="Icons/next button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
+							<Button Name="muteButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="25" Background="Transparent" BorderThickness="0" Padding="3" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="MuteButton_Click">
+								<Image Name="muteButtonIcon" Source="Icons/volume.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
+							<Slider Width="80" HorizontalAlignment="Center" Name="volumeSlider" VerticalAlignment="Center"  Maximum="100" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="MuteSlider_ValueChanged"></Slider>
+						</StackPanel>
+					</Border>
+
+				</StackPanel>
+
+			</Grid>
 		</Border>
 	</Grid>
 </Window>

@@ -112,5 +112,9 @@
     <Resource Include="Icons\Repeat1.png" />
     <Resource Include="Icons\repeat3.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Icons\mute.png" />
+    <Resource Include="Icons\volume.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
