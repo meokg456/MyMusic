@@ -301,11 +301,11 @@
 		<Border Grid.Row="2" Background="#FF8CDAEE">
 			<Grid Name="musicGrid" Margin="10,10,10,0">
 				<Grid.RowDefinitions>
-					<RowDefinition Height="1*"></RowDefinition>
+					<RowDefinition Height="1.2*"></RowDefinition>
 					<RowDefinition Height="1*"></RowDefinition>
 					<RowDefinition Height="5*"></RowDefinition>
 				</Grid.RowDefinitions>
-				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Top"  Maximum="100000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
+				<Slider Name="progressSlider" Grid.Row="0" VerticalAlignment="Center"  Maximum="100000" Style="{DynamicResource SliderStyle}" IsMoveToPointEnabled = "true" ValueChanged="ProgressSlider_ValueChanged"></Slider>
 				<StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
 					<TextBlock Name="currentPosition" Text="00:00"></TextBlock>
 					<TextBlock Text=" / "></TextBlock>
@@ -325,13 +325,13 @@
 								<Image Source="Icons/repeat3.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 							</Button>
 
-							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
+							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}" Click="PreviousButton_Click">
 								<Image Source="Icons/previous button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 							</Button>
 							<Button Name="playButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="50" Width="50" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="PlayButton_Click">
 								<Image Name="playButtonIcon" Source="Icons/play button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 							</Button>
-							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}">
+							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}" Click="NextButton_Click">
 								<Image Source="Icons/next button.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 							</Button>
 							<Button Name="muteButton" VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="25" Background="Transparent" BorderThickness="0" Padding="3" Margin="5" Style="{DynamicResource PlayButtonStyle}" Click="MuteButton_Click">

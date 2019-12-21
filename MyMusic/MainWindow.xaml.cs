@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
@@ -64,9 +65,11 @@ namespace MyMusic
 
 		private void _player_MediaEnded(object sender, EventArgs e)
 		{
-            var index = musicListBox.SelectedIndex;
+			_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
+			var index = musicListBox.SelectedIndex;
             var playlist = PlayLists.SelectedItem as PlayList;
-            var count = playlist.ItemList.Count;
+			if (PlayLists.SelectedIndex < 0) return;
+			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
 				playButtonIcon.Source = _playBitmapImage;
@@ -75,17 +78,14 @@ namespace MyMusic
 				_isPlaying = false;
 				progressSlider.Value = 0;
 				ProgressSlider_ValueChanged(sender, e as RoutedPropertyChangedEventArgs<double>);
+				return;
 			}
             if (repeatOption == RepeatOption.SelfRepeat)
             {
-                musicListBox.SelectedItem = playlist.ItemList[index];
-                MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
             }
             else if (repeatOption == RepeatOption.SequenceRepeat)
             {
                 index = (index + 1) % count;
-                musicListBox.SelectedItem = playlist.ItemList[index];
-                MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
             }
             else if (repeatOption == RepeatOption.RandomRepeat)
             {
@@ -96,12 +96,11 @@ namespace MyMusic
                 {
                     index = rand.Next(count);
                 } while (index == oldIndex && count > 1);
-                
-                musicListBox.SelectedItem = playlist.ItemList[index];
-                MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
             }
-            else return;
-        }
+			musicListBox.SelectedItem = playlist.ItemList[index];
+			MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+
+		}
 
 		private void _player_MediaOpened(object sender, EventArgs e)
 		{
@@ -263,6 +262,34 @@ namespace MyMusic
 		private void MuteSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
 		{
 			_player.Volume = volumeSlider.Value / volumeSlider.Maximum;
+		}
+		Stack<FileInfo> _playedSongs = new Stack<FileInfo>();
+		private void PreviousButton_Click(object sender, RoutedEventArgs e)
+		{
+			if(_playedSongs.Count > 0)
+			{
+				musicListBox.SelectedItem = _playedSongs.Pop();
+				MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+			}
+		}
+
+		private void NextButton_Click(object sender, RoutedEventArgs e)
+		{
+			var index = musicListBox.SelectedIndex;
+			var playlist = PlayLists.SelectedItem as PlayList;
+			if (PlayLists.SelectedIndex < 0) return;
+			var count = playlist.ItemList.Count;
+			if (repeatOption == RepeatOption.NoRepeat)
+			{
+				_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
+				index = (index + 1) % count;
+				musicListBox.SelectedItem = playlist.ItemList[index];
+				MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+			}
+			else
+			{ 
+				_player_MediaEnded(sender, e);
+			}
 		}
 	}
 }
