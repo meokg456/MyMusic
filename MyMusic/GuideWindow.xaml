@@ -1,0 +1,26 @@
+﻿<Window x:Class="MyMusic.GuideWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:MyMusic"
+        mc:Ignorable="d"
+        Title="GuideWindow" Height="350" Width="600" ResizeMode="NoResize">
+	<Window.Background>
+		<ImageBrush ImageSource="Icons/team.jpg" Opacity="0.24"/>
+	</Window.Background>
+	<Grid>
+
+		<StackPanel>
+			<TextBlock  Text="Create by" FontSize="13" TextAlignment="Center" Foreground="White"></TextBlock>
+			<TextBlock  Text="Hoa rơi cửa phật Team" FontSize="25" TextAlignment="Center" Foreground="White"></TextBlock>
+
+			<TextBlock  Text="Hotkeys" FontSize="13" TextAlignment="Center" Foreground="White" Margin="0,20,0,0"></TextBlock>
+			<TextBlock  Text="Next song: Ctrl + Alt + →" FontSize="15" TextAlignment="Center" Foreground="White"></TextBlock>
+			<TextBlock  Text="Previous song: Ctrl + Alt + ←" FontSize="15" TextAlignment="Center" Foreground="White"></TextBlock>
+			<TextBlock  Text="Play/Pause: Ctrl + Alt + Numpad0" FontSize="15" TextAlignment="Center" Foreground="White"></TextBlock>
+		</StackPanel>
+		
+
+	</Grid>
+</Window>

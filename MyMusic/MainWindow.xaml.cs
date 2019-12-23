@@ -1,13 +1,17 @@
-﻿using System;
+﻿using Gma.System.MouseKeyHook;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Forms;
+using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using Button = System.Windows.Controls.Button;
+using MessageBox = System.Windows.MessageBox;
 
 namespace MyMusic
 {
@@ -24,8 +28,8 @@ namespace MyMusic
 		MediaPlayer _player = new MediaPlayer();
 		DispatcherTimer _timer;
         RepeatOption repeatOption = RepeatOption.NoRepeat;
-
-        public MainWindow()
+		IKeyboardMouseEvents _hook;
+		public MainWindow()
 		{
 			InitializeComponent();
 		}
@@ -55,22 +59,40 @@ namespace MyMusic
 
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-			PlayLists.ItemsSource = _listPlay;
+			playlistListBox.ItemsSource = _listPlay;
 			_timer = new DispatcherTimer();
 			_timer.Interval = TimeSpan.FromMilliseconds(250);
 			_timer.Tick += timer_Tick;
 			_player.MediaOpened += _player_MediaOpened;
 			_player.MediaEnded += _player_MediaEnded;
 			volumeSlider.Value = 50;
-			_player.Volume = 0.5;
+			_player.Volume = 0.75;
+			_hook = Hook.GlobalEvents();
+			_hook.KeyUp += Hook_KeyUp;
+		}
+
+		private void Hook_KeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
+		{
+			if (e.Control && e.Alt && e.KeyCode == Keys.NumPad0)
+			{
+				PlayButton_Click(sender, null);
+			}
+			if (e.Control && e.Alt && e.KeyCode == Keys.Right)
+			{
+				NextButton_Click(sender, null);
+			}
+			if (e.Control && e.Alt && e.KeyCode == Keys.Left)
+			{
+				PreviousButton_Click(sender, null);
+			}
 		}
 
 		private void _player_MediaEnded(object sender, EventArgs e)
 		{
 			_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
 			var index = musicListBox.SelectedIndex;
-            var playlist = PlayLists.SelectedItem as PlayList;
-			if (PlayLists.SelectedIndex < 0) return;
+            var playlist = playlistListBox.SelectedItem as PlayList;
+			if (playlistListBox.SelectedIndex < 0) return;
 			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
@@ -97,7 +119,6 @@ namespace MyMusic
                 } while (index == oldIndex && count > 1);
             }
 			musicListBox.SelectedItem = playlist.ItemList[index];
-			MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
 
 		}
 
@@ -106,7 +127,6 @@ namespace MyMusic
 			maxPosition.Text = _player.NaturalDuration.TimeSpan.ToString(@"mm\:ss");
 			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
 			progressSlider.Value = 0;
-			//_timer.Interval = TimeSpan.FromMilliseconds(_player.NaturalDuration.TimeSpan.TotalMilliseconds / progressSlider.Maximum);
 		}
 
 		private void timer_Tick(object sender, EventArgs e)
@@ -117,9 +137,9 @@ namespace MyMusic
 
 		private void addSongMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			if (PlayLists.SelectedIndex >= 0)
+			if (playlistListBox.SelectedIndex >= 0)
 			{
-				var playlist = PlayLists.SelectedItem as PlayList;
+				var playlist = playlistListBox.SelectedItem as PlayList;
 				var screen = new Microsoft.Win32.OpenFileDialog();
 				screen.Multiselect = true;
                 screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
@@ -131,6 +151,7 @@ namespace MyMusic
 						playlist.ItemList.Add(info);
 					}
 				}
+			
 			}
 			else
 			{
@@ -138,12 +159,21 @@ namespace MyMusic
 			}
 		}
 
-		private void PlayLists_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private void playlistListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var playList = PlayLists.SelectedItem as PlayList;
+			var playList = playlistListBox.SelectedItem as PlayList;
 			musicListBox.ItemsSource = playList.ItemList;
+			if (_isPlaying == true)
+			{
+				playButtonIcon.Source = _playBitmapImage;
+				_player.Stop();
+				_timer.Stop();
+				_player.Close();
+				_isPlaying = !_isPlaying;
+				_playedSongs.Clear();
+				_nextSongs.Clear();
+			}
 		}
-
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
 		{
 			if (_player.Source != null)
@@ -172,6 +202,7 @@ namespace MyMusic
         private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
 			var song = musicListBox.SelectedItem as FileInfo;
+			if (song == null) return;
 			if (_isPlaying == true)
 			{
 				_timer.Stop();
@@ -275,22 +306,21 @@ namespace MyMusic
 			{
 				_nextSongs.Push(musicListBox.SelectedItem as FileInfo);
 				musicListBox.SelectedItem = _playedSongs.Pop();
-				MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
+
 			}
 		}
 
 		private void NextButton_Click(object sender, RoutedEventArgs e)
 		{
 			var index = musicListBox.SelectedIndex;
-			var playlist = PlayLists.SelectedItem as PlayList;
-			if (PlayLists.SelectedIndex < 0) return;
+			var playlist = playlistListBox.SelectedItem as PlayList;
+			if (playlistListBox.SelectedIndex < 0) return;
 			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
 				_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
 				index = (index + 1) % count;
 				musicListBox.SelectedItem = playlist.ItemList[index];
-				MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
 			}
 			else
 			{
@@ -302,10 +332,37 @@ namespace MyMusic
 				{
 					_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
 					musicListBox.SelectedItem = _nextSongs.Pop();
-					MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
-					
 				}
 			}
+		}
+
+		private void Window_Closed(object sender, EventArgs e)
+		{
+			_hook.KeyUp -= Hook_KeyUp;
+			_hook.Dispose();
+		}
+
+		private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+		{
+			if(e.Key == Key.Space)
+			{
+				PlayButton_Click(sender, null);
+			}
+			if(e.Key == Key.Right)
+			{
+				progressSlider.Value = progressSlider.Value + 1200;
+			}
+			if (e.Key == Key.Left)
+			{
+				progressSlider.Value = progressSlider.Value - 1200;
+			}
+		}
+
+		private void guideMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			var guide = new GuideWindow();
+			guide.Show();
+
 		}
 	}
 }
