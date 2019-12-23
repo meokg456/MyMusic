@@ -65,7 +65,7 @@ namespace MyMusic
 			_timer.Tick += timer_Tick;
 			_player.MediaOpened += _player_MediaOpened;
 			_player.MediaEnded += _player_MediaEnded;
-			volumeSlider.Value = 50;
+			volumeSlider.Value = 75;
 			_player.Volume = 0.75;
 			_hook = Hook.GlobalEvents();
 			_hook.KeyUp += Hook_KeyUp;
@@ -213,7 +213,7 @@ namespace MyMusic
 			}
 			_player.Open(new Uri(song.FullName, UriKind.Absolute));
 			while (_player.NaturalDuration.HasTimeSpan == false);
-			
+			musicListBox.ScrollIntoView(song);
 			PlayButton_Click(sender, e);
 		}
 
