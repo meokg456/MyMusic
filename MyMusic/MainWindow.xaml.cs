@@ -2,8 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -12,7 +12,11 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Button = System.Windows.Controls.Button;
+using ListBox = System.Windows.Controls.ListBox;
+using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
+using SelectionMode = System.Windows.Controls.SelectionMode;
+using TextBox = System.Windows.Controls.TextBox;
 
 namespace MyMusic
 {
@@ -28,8 +32,15 @@ namespace MyMusic
 		BitmapImage _volumeBitmapImage = new BitmapImage(new Uri("Icons/volume.png", UriKind.Relative));
 		MediaPlayer _player = new MediaPlayer();
 		DispatcherTimer _timer;
-        RepeatOption repeatOption = RepeatOption.NoRepeat;
+		RepeatOption _repeatOption = RepeatOption.NoRepeat;
+		NextOption _nextOption = NextOption.SequenceNext;
 		IKeyboardMouseEvents _hook;
+		Stack<FileInfo> _playedSongs = new Stack<FileInfo>();
+		Stack<FileInfo> _nextSongs = new Stack<FileInfo>();
+		string FileNamePlayList = "PlayList.txt";
+		MenuItem _renameMenuItem;
+		string _renamingFileName;
+		Border _selectedMusicBorder;
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -37,31 +48,35 @@ namespace MyMusic
 		public enum RepeatOption
 		{
 			NoRepeat = -1,
-			SelfRepeat = 0,
-			SequenceRepeat = 1,
-			RandomRepeat = 2,
+			InfinityRepeat = 0,
+			OneTimeRepeat = 1
 		}
-
-        
-        public class PlayList
+		public enum NextOption
+		{
+			RandomNext = 0,
+			SequenceNext = 1
+		}
+		public class PlayList
 		{
 			public string PlayListName { get; set; }
 			public BindingList<FileInfo> ItemList;
-			
+
 		}
 
-		BindingList<PlayList> _listPlay = new BindingList<PlayList>();
+		BindingList<PlayList> _playlists = new BindingList<PlayList>();
 		int countPlayList = 1;
 		private void newPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			_listPlay.Add(new PlayList() { PlayListName = $"Play List {countPlayList}", ItemList = new BindingList<FileInfo>() });
-            countPlayList++;
+			_playlists.Add(new PlayList() { PlayListName = $"Play List {countPlayList}", ItemList = new BindingList<FileInfo>() });
+			File.Create($"Play List {countPlayList}.txt").Close();
+			countPlayList++;
 		}
 
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-            LoadPlayList();
-			playlistListBox.ItemsSource = _listPlay;
+			playlistListBox.ItemsSource = _playlists;
+			LoadPlayList();
+			musicListBox.SelectionMode = SelectionMode.Extended;
 			_timer = new DispatcherTimer();
 			_timer.Interval = TimeSpan.FromMilliseconds(250);
 			_timer.Tick += timer_Tick;
@@ -91,49 +106,54 @@ namespace MyMusic
 
 		private void _player_MediaEnded(object sender, EventArgs e)
 		{
-			_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
-			var index = musicListBox.SelectedIndex;
-            var playlist = playlistListBox.SelectedItem as PlayList;
+			var playlist = playlistListBox.SelectedItem as PlayList;
 			if (playlistListBox.SelectedIndex < 0) return;
 			var count = playlist.ItemList.Count;
-			if (repeatOption == RepeatOption.NoRepeat)
+			var index = musicListBox.SelectedIndex;
+			StopButton_Click(sender, e as RoutedEventArgs);
+			_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
+			if (_repeatOption == RepeatOption.NoRepeat && _nextOption == NextOption.SequenceNext)
 			{
-				PlayButton_Click(sender, e as RoutedEventArgs);
+				index = index + 1;
+				if (index == count)
+				{
+					progressSlider.Value = 0;
+					return;
+				}
+			}
+			if (_repeatOption == RepeatOption.InfinityRepeat)
+			{
 				progressSlider.Value = 0;
-				ProgressSlider_ValueChanged(sender, e as RoutedPropertyChangedEventArgs<double>);
+				PlayButton_Click(sender, e as RoutedEventArgs);
 				return;
 			}
-            if (repeatOption == RepeatOption.SelfRepeat)
-            {
-            }
-            else if (repeatOption == RepeatOption.SequenceRepeat)
-            {
-                index = (index + 1) % count;
-            }
-            else if (repeatOption == RepeatOption.RandomRepeat)
-            {
-                var oldIndex = index;
+			if (_repeatOption == RepeatOption.OneTimeRepeat && _nextOption == NextOption.SequenceNext)
+			{
+				index = (index + 1) % count;
+			}
+			if (_nextOption == NextOption.RandomNext)
+			{
+				var oldIndex = index;
 
-                var rand = new Random();
-                do
-                {
-                    index = rand.Next(count);
-                } while (index == oldIndex && count > 1);
-            }
+				var rand = new Random();
+				do
+				{
+					index = rand.Next(count);
+				} while (index == oldIndex && count > 1);
+			}
 			musicListBox.SelectedItem = playlist.ItemList[index];
 
 		}
-
 		private void _player_MediaOpened(object sender, EventArgs e)
 		{
 			maxPosition.Text = _player.NaturalDuration.TimeSpan.ToString(@"mm\:ss");
 			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
 			progressSlider.Value = 0;
+
 		}
 
 		private void timer_Tick(object sender, EventArgs e)
 		{
-			currentPosition.Text = _player.Position.ToString(@"mm\:ss");
 			progressSlider.Value = _player.Position.TotalMilliseconds / _player.NaturalDuration.TimeSpan.TotalMilliseconds * progressSlider.Maximum;
 		}
 
@@ -144,16 +164,18 @@ namespace MyMusic
 				var playlist = playlistListBox.SelectedItem as PlayList;
 				var screen = new Microsoft.Win32.OpenFileDialog();
 				screen.Multiselect = true;
-                screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
-                if (screen.ShowDialog() == true)
+				screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
+				if (screen.ShowDialog() == true)
 				{
 					foreach (var fileName in screen.FileNames)
 					{
 						var info = new FileInfo(fileName);
 						playlist.ItemList.Add(info);
+						musicListBox.ScrollIntoView(playlist.ItemList[playlist.ItemList.Count - 1]);
 					}
+					musicListBox.ScrollIntoView(playlist.ItemList[0]);
 				}
-			
+
 			}
 			else
 			{
@@ -163,17 +185,23 @@ namespace MyMusic
 
 		private void playlistListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var playList = playlistListBox.SelectedItem as PlayList;
-			musicListBox.ItemsSource = playList.ItemList;
+			var playlist = playlistListBox.SelectedItem as PlayList;
 			if (_isPlaying == true)
 			{
-				playButtonIcon.Source = _playBitmapImage;
-				_player.Stop();
-				_timer.Stop();
-				_player.Close();
-				_isPlaying = !_isPlaying;
+				StopButton_Click(sender, null);
 				_playedSongs.Clear();
 				_nextSongs.Clear();
+			}
+			if (playlist == null)
+			{
+				musicListBox.ItemsSource = null;
+				return;
+			}
+			musicListBox.ItemsSource = playlist.ItemList;
+			if (playlist.ItemList.Count > 0)
+			{
+				musicListBox.ScrollIntoView(playlist.ItemList[playlist.ItemList.Count - 1]);
+				musicListBox.ScrollIntoView(playlist.ItemList[0]);
 			}
 		}
 		private void PlayButton_Click(object sender, RoutedEventArgs e)
@@ -185,6 +213,7 @@ namespace MyMusic
 					playButtonIcon.Source = _pauseBitmapImage;
 					_player.Play();
 					_timer.Start();
+					_selectedMusicBorder.Tag = "Playing";
 
 				}
 				else
@@ -192,29 +221,28 @@ namespace MyMusic
 					playButtonIcon.Source = _playBitmapImage;
 					_player.Pause();
 					_timer.Stop();
+					_selectedMusicBorder.Tag = "Paused";
 				}
 			}
 			else
 			{
-				MessageBox.Show("Please choose a song! ");
+				MessageBox.Show("Please choose a song!");
 			}
 			_isPlaying = !_isPlaying;
 		}
 
-        private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+		private void MusicListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
+			if (musicListBox.SelectedItems.Count > 1) return;
 			var song = musicListBox.SelectedItem as FileInfo;
 			if (song == null) return;
-			if (_isPlaying == true)
-			{
-				_timer.Stop();
-				_player.Stop();
-				_player.Close();
-				playButtonIcon.Source = _playBitmapImage;
-				_isPlaying = !_isPlaying;
-			}
 			_player.Open(new Uri(song.FullName, UriKind.Absolute));
-			while (_player.NaturalDuration.HasTimeSpan == false);
+			while (_player.NaturalDuration.HasTimeSpan == false) ;
+			ListBoxItem item = (ListBoxItem)musicListBox.ItemContainerGenerator.ContainerFromItem(song);
+			while (item.HasContent == false) ;
+			var control = item.Template;
+			var presenter = item.Content;
+			_selectedMusicBorder = control.FindName("Bd", item) as Border;
 			musicListBox.ScrollIntoView(song);
 			PlayButton_Click(sender, e);
 		}
@@ -232,53 +260,43 @@ namespace MyMusic
 			}
 		}
 
-        private void SelfRepeat_Click(object sender, RoutedEventArgs e)
-        {
+		private void SelfRepeat_Click(object sender, RoutedEventArgs e)
+		{
 			var button = sender as Button;
-			if(button.Tag as string != "chose")
-			{
-				repeatOption = RepeatOption.SelfRepeat;
-				button.Tag = "chose";
-				sequenRepeat.Tag = "";
-				randomRepeat.Tag = "";
-			}
-			else
-			{
-				repeatOption = RepeatOption.NoRepeat;
-				button.Tag = "";
-			}
-        }
+			_repeatOption = RepeatOption.NoRepeat;
+			infinityRepeatButton.Tag = "";
+			infinityRepeatButton.Visibility = Visibility.Visible;
+			button.Visibility = Visibility.Hidden;
+		}
 
         private void SequenRepeat_Click(object sender, RoutedEventArgs e)
         {
 			var button = sender as Button;
 			if (button.Tag as string != "chose")
 			{
-				repeatOption = RepeatOption.SequenceRepeat;
+				_repeatOption = RepeatOption.OneTimeRepeat;
 				button.Tag = "chose";
-				selfRepeat.Tag = "";
-				randomRepeat.Tag = "";
 			}
 			else
 			{
-				repeatOption = RepeatOption.NoRepeat;
+				_repeatOption = RepeatOption.InfinityRepeat;
 				button.Tag = "";
+				selfRepeatButton.Visibility = Visibility.Visible;
+				button.Visibility = Visibility.Hidden;
 			}
 		}
 
-        private void RandomRepeat_Click(object sender, RoutedEventArgs e)
+        private void RandomNext_Click(object sender, RoutedEventArgs e)
         {
 			var button = sender as Button;
 			if (button.Tag as string != "chose")
 			{
-				repeatOption = RepeatOption.RandomRepeat;
+				_nextOption = NextOption.RandomNext;
 				button.Tag = "chose";
-				sequenRepeat.Tag = "";
-				selfRepeat.Tag = "";
 			}
 			else
 			{
-				repeatOption = RepeatOption.NoRepeat;
+				_nextOption = NextOption.SequenceNext;
 				button.Tag = "";
 			}
 		}
@@ -300,57 +318,42 @@ namespace MyMusic
 		{
 			_player.Volume = volumeSlider.Value / volumeSlider.Maximum;
 		}
-		Stack<FileInfo> _playedSongs = new Stack<FileInfo>();
-		Stack<FileInfo> _nextSongs = new Stack<FileInfo>();
+
 		private void PreviousButton_Click(object sender, RoutedEventArgs e)
 		{
 			if(_playedSongs.Count > 0)
 			{
 				_nextSongs.Push(musicListBox.SelectedItem as FileInfo);
+				StopButton_Click(sender, e);
 				musicListBox.SelectedItem = _playedSongs.Pop();
-
 			}
 		}
 
 		private void NextButton_Click(object sender, RoutedEventArgs e)
 		{
-			var index = musicListBox.SelectedIndex;
 			var playlist = playlistListBox.SelectedItem as PlayList;
 			if (playlistListBox.SelectedIndex < 0) return;
-			var count = playlist.ItemList.Count;
-			if (repeatOption == RepeatOption.NoRepeat)
+			StopButton_Click(sender, e);
+			if (_nextSongs.Count == 0)
 			{
-				_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
-				index = (index + 1) % count;
-				musicListBox.SelectedItem = playlist.ItemList[index];
+				_player_MediaEnded(sender, e);
 			}
 			else
 			{
-				if (_nextSongs.Count == 0)
-				{
-					_player_MediaEnded(sender, e);
-				}
-				else
-				{
-					_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
-					musicListBox.SelectedItem = _nextSongs.Pop();
-					MusicListBox_SelectionChanged(sender, e as SelectionChangedEventArgs);
-					
-				}
+				_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
+				musicListBox.SelectedItem = _nextSongs.Pop();
 			}
 		}
-
-        string FileNamePlayList = "PlayList.txt";
 
         private void SavePlayList()
         {
             var writePlayList = new StreamWriter(FileNamePlayList);
             //dong dau tien save so luong PlayList
-            writePlayList.WriteLine(_listPlay.Count);
-            if (_listPlay.Count > 0)
+            writePlayList.WriteLine(_playlists.Count);
+            if (_playlists.Count > 0)
             {
                 //tiep theo la ghi ten cac tap tin chua bai hat cua moi playlist
-                foreach (var item in _listPlay)
+                foreach (var item in _playlists)
                 {
                     var namePlayList = item.PlayListName + ".txt";
                     writePlayList.WriteLine(namePlayList);
@@ -374,32 +377,41 @@ namespace MyMusic
 
         private void LoadPlayList()
         {
-            var readerPlayList = new StreamReader(FileNamePlayList);
-            var firstLine = readerPlayList.ReadLine();
-            var numPlayList = int.Parse(firstLine);
+			try
+			{
+				var readerPlayList = new StreamReader(FileNamePlayList);
+				var firstLine = readerPlayList.ReadLine();
+				var numPlayList = int.Parse(firstLine);
 
-            if (numPlayList > 0)
-            {
-                for (int i = 0; i < numPlayList; i++)
-                {
-                    var namePlayList = readerPlayList.ReadLine();
-                    var playlist = namePlayList.Replace(".txt", "");
-                    var readerItemList = new StreamReader(namePlayList);
-                    var numItemList = int.Parse(readerItemList.ReadLine());
-                    var itemListPlay = new PlayList() { PlayListName = playlist, ItemList = new BindingList<FileInfo>() };
+				if (numPlayList > 0)
+				{
+					for (int i = 0; i < numPlayList; i++)
+					{
+						var namePlayList = readerPlayList.ReadLine();
+						var playlist = namePlayList.Replace(".txt", "");
+						var readerItemList = new StreamReader(namePlayList);
+						var numItemList = int.Parse(readerItemList.ReadLine());
+						var itemListPlay = new PlayList() { PlayListName = playlist, ItemList = new BindingList<FileInfo>() };
 
-                    if (numItemList > 0)
-                    {
-                        for (int j = 0; j < numItemList; j++)
-                        {
-                            var urlSong = readerItemList.ReadLine();
-                            itemListPlay.ItemList.Add(new FileInfo(urlSong));
-                        }
-                    }
-                    _listPlay.Add(itemListPlay);
-                }
-                countPlayList = numPlayList + 1;
-            }
+						if (numItemList > 0)
+						{
+							for (int j = 0; j < numItemList; j++)
+							{
+								var urlSong = readerItemList.ReadLine();
+								itemListPlay.ItemList.Add(new FileInfo(urlSong));
+							}
+						}
+						_playlists.Add(itemListPlay);
+						readerItemList.Close();
+					}
+					countPlayList = numPlayList + 1;
+				}
+				readerPlayList.Close();
+			}
+			catch(Exception ex)
+			{
+
+			}
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -411,20 +423,97 @@ namespace MyMusic
 
         private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
         {
-            if (e.Key == Key.Space)
-            {
-                PlayButton_Click(sender, null);
-            }
-            if (e.Key == Key.Right)
-            {
-                progressSlider.Value = progressSlider.Value + 1200;
-            }
-            if (e.Key == Key.Left)
-            {
-                progressSlider.Value = progressSlider.Value - 1200;
-            }
-        }
+			if (_renameMenuItem == null)
+			{
+				if (e.Key == Key.Space)
+				{
+					PlayButton_Click(sender, null);
+				}
+				if (e.Key == Key.Right)
+				{
+					progressSlider.Value = progressSlider.Value + 1200;
+				}
+				if (e.Key == Key.Left)
+				{
+					progressSlider.Value = progressSlider.Value - 1200;
+				}
+				if (e.Key == Key.A && Keyboard.IsKeyDown(Key.LeftCtrl) || e.Key == Key.A && Keyboard.IsKeyDown(Key.LeftCtrl))
+				{
+					musicListBox.SelectAll();
+				}
 
-       
-    }
+
+			}
+			else
+			if (e.Key == Key.Enter)
+			{
+				if ((string)_renameMenuItem.Tag == "Clicked")
+				{
+					var playlist = playlistListBox.SelectedItem as PlayList;
+					_renameMenuItem.Tag = "";
+					File.Move(_renamingFileName + ".txt", playlist.PlayListName + ".txt");
+				}
+			}
+		}
+
+		private void PlaylistRenameMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			var playlist = playlistListBox.SelectedItem as PlayList;
+			_renameMenuItem = sender as MenuItem;
+			_renameMenuItem.Tag = "Clicked";
+			_renamingFileName = playlist.PlayListName;
+		}
+
+		private void PlaylistDeleteMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			var playlist = playlistListBox.SelectedItem as PlayList;
+			playlist.ItemList.Clear();
+			_playlists.Remove(playlist);
+			playlistListBox.SelectedItem = null;
+			File.Delete(playlist.PlayListName + ".txt");
+		}
+
+		private void PlaylistName_GotFocus(object sender, RoutedEventArgs e)
+		{
+			var tb = sender as TextBox;
+			tb.SelectAll();
+		}
+
+		private void MusicDeleteMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			var playlist = playlistListBox.SelectedItem as PlayList;
+			var songs = musicListBox.SelectedItems;
+			while(songs.Count != 0)
+			{
+				playlist.ItemList.Remove(songs[0] as FileInfo);
+			}
+
+		}
+
+		private void Bd_MouseDown(object sender, MouseButtonEventArgs e)
+		{
+			//if (Keyboard.IsKeyDown(Key.LeftShift) == false && Keyboard.IsKeyDown(Key.LeftShift) == false)
+			//{
+			//	if (_selectedMusicBorder != null)
+			//		_selectedMusicBorder.Tag = "Paused";
+			//	_selectedMusicBorder = sender as Border;
+			//}
+		}
+
+		private void StopButton_Click(object sender, RoutedEventArgs e)
+		{
+			if (_player.Source != null)
+			{
+				if (_isPlaying == true)
+				{
+					progressSlider.Value = 0;
+					_timer.Stop();
+					_player.Stop();
+					playButtonIcon.Source = _playBitmapImage;
+					_isPlaying = !_isPlaying;
+				}
+				_selectedMusicBorder.Tag = "Paused";
+			}
+		}
+	}
 }

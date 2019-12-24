@@ -277,7 +277,7 @@
 		<SolidColorBrush x:Key="Item.MouseOver.Background" Color="#668744FB"/>
 		<SolidColorBrush x:Key="Item.MouseOver.Border" Color="#a826A0Da"/>
 		<SolidColorBrush x:Key="Item.SelectedInactive.Background" Color="#7200F3FF"/>
-		<SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="#FFDADADA"/>
+		<SolidColorBrush x:Key="Item.SelectedInactive.Border" Color="#FF26A0DA"/>
 		<SolidColorBrush x:Key="Item.SelectedActive.Background" Color="#7200F3FF"/>
 		<SolidColorBrush x:Key="Item.SelectedActive.Border" Color="#FF26A0DA"/>
 		<Style x:Key="MusicListBoxItem" TargetType="{x:Type ListBoxItem}">
@@ -292,15 +292,16 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type ListBoxItem}">
-						<Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+						<Border Tag="Paused" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" MouseDown="Bd_MouseDown">
 							<StackPanel Orientation="Horizontal">
 								<Image Name="RotateImage" RenderTransformOrigin=".5,.5" Source="Icons/song.png" Height="20" Width="20" RenderOptions.BitmapScalingMode="HighQuality">
 									<Image.RenderTransform>
 										<RotateTransform Angle="0"  />
 									</Image.RenderTransform>
 								</Image>
-								<TextBlock Text="{Binding Name, Converter={StaticResource converter}}" Height="20" FontSize="15" Margin="5,0,0,0"/>
+								<TextBlock Name="musicName" Text="{Binding Name, Converter={StaticResource converter}}" Height="20" FontSize="15" Margin="5,0,0,0" />
 							</StackPanel>
+
 						</Border>
 
 						<ControlTemplate.Triggers>
@@ -315,7 +316,7 @@
 								<MultiTrigger.Conditions>
 									<Condition Property="Selector.IsSelectionActive" Value="False"/>
 									<Condition Property="IsSelected" Value="True"/>
-
+									<Condition Property="Tag" SourceName="Bd" Value="Playing"></Condition>
 								</MultiTrigger.Conditions>
 								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
 								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}"/>
@@ -325,7 +326,7 @@
 									</Setter.Value>
 								</Setter>
 								<MultiTrigger.EnterActions>
-									<BeginStoryboard Storyboard="{StaticResource SelectedItemAnimation}">
+									<BeginStoryboard Name="Animation1" Storyboard="{StaticResource SelectedItemAnimation}">
 									</BeginStoryboard>
 								</MultiTrigger.EnterActions>
 							</MultiTrigger>
@@ -333,7 +334,7 @@
 								<MultiTrigger.Conditions>
 									<Condition Property="Selector.IsSelectionActive" Value="True"/>
 									<Condition Property="IsSelected" Value="True"/>
-									
+									<Condition Property="Tag" SourceName="Bd" Value="Playing"></Condition>
 								</MultiTrigger.Conditions>
 								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"/>
 								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}"/>
@@ -343,8 +344,42 @@
 									</Setter.Value>
 								</Setter>
 								<MultiTrigger.EnterActions>
-									<BeginStoryboard Storyboard="{StaticResource SelectedItemAnimation}">
+									<BeginStoryboard Name="Animation2" Storyboard="{StaticResource SelectedItemAnimation}">
 									</BeginStoryboard>
+								</MultiTrigger.EnterActions>
+							</MultiTrigger>
+							<MultiTrigger>
+								<MultiTrigger.Conditions>
+									<Condition Property="Selector.IsSelectionActive" Value="False"/>
+									<Condition Property="IsSelected" Value="True"/>
+									<Condition Property="Tag" SourceName="Bd" Value="Paused"></Condition>
+								</MultiTrigger.Conditions>
+								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
+								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}"/>
+								<Setter Property="RenderTransform" TargetName="RotateImage">
+									<Setter.Value>
+										<RotateTransform Angle="0" />
+									</Setter.Value>
+								</Setter>
+								<MultiTrigger.EnterActions>
+									<StopStoryboard BeginStoryboardName="Animation1"></StopStoryboard>
+								</MultiTrigger.EnterActions>
+							</MultiTrigger>
+							<MultiTrigger>
+								<MultiTrigger.Conditions>
+									<Condition Property="Selector.IsSelectionActive" Value="True"/>
+									<Condition Property="IsSelected" Value="True"/>
+									<Condition Property="Tag" SourceName="Bd" Value="Paused"></Condition>
+								</MultiTrigger.Conditions>
+								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"/>
+								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}"/>
+								<Setter Property="RenderTransform" TargetName="RotateImage">
+									<Setter.Value>
+										<RotateTransform Angle="0" />
+									</Setter.Value>
+								</Setter>
+								<MultiTrigger.EnterActions>
+									<StopStoryboard BeginStoryboardName="Animation2"></StopStoryboard>
 								</MultiTrigger.EnterActions>
 							</MultiTrigger>
 							<Trigger Property="IsEnabled" Value="False">
@@ -371,12 +406,34 @@
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type ListBoxItem}">
 						<Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
-							<StackPanel Orientation="Horizontal">
-								<Image Name="playlistIcon" Source="Icons/playlist.png" Height="20" Width="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="10,0,0,0"></Image>
-								<TextBlock Text="{Binding PlayListName}" Margin="5,0,0,0" Height="20" FontSize="15"/>
-							</StackPanel>
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="20"></ColumnDefinition>
+									<ColumnDefinition Width="Auto"></ColumnDefinition>
+								</Grid.ColumnDefinitions>
+								<Image Grid.Column="0" Name="playlistIcon" Source="Icons/playlist.png" Height="20" Width="20" RenderOptions.BitmapScalingMode="HighQuality" ></Image>
+								<TextBox Focusable="False" Grid.Column="1" Cursor="Arrow" IsReadOnly="True" IsReadOnlyCaretVisible="false" Name="playlistName" Text="{Binding PlayListName, Mode=TwoWay}" Margin="5,0,0,0" Height="20" FontSize="15" Background="Transparent" BorderThickness="0" GotFocus="PlaylistName_GotFocus" />
+							</Grid>
+							<Border.ContextMenu>
+								<ContextMenu>
+									<MenuItem Name="RenameMenuItem" Header="Rename" Click ="PlaylistRenameMenuItem_Click" ></MenuItem>
+									<MenuItem Header="Delete" Click ="PlaylistDeleteMenuItem_Click"></MenuItem>
+								</ContextMenu>
+							</Border.ContextMenu>
 						</Border>
+
 						<ControlTemplate.Triggers>
+							<MultiTrigger>
+								<MultiTrigger.Conditions>
+									<Condition SourceName="RenameMenuItem" Property="Tag" Value="Clicked"/>
+									<Condition Property="Selector.IsSelectionActive" Value="True"/>
+								</MultiTrigger.Conditions>
+								<Setter TargetName="playlistName" Property="Focusable" Value="True"></Setter>
+								<Setter TargetName="playlistName" Property="IsReadOnlyCaretVisible" Value="True"></Setter>
+								<Setter TargetName="playlistName" Property="IsReadOnly" Value="False"></Setter>
+								<Setter TargetName="playlistName" Property="Cursor" Value="IBeam"></Setter>
+								<Setter TargetName="playlistName" Property="FocusManager.FocusedElement" Value="{Binding ElementName=playlistName}"/>
+							</MultiTrigger>
 							<MultiTrigger>
 								<MultiTrigger.Conditions>
 									<Condition Property="IsMouseOver" Value="True"/>
@@ -427,25 +484,22 @@
 				<DockPanel Width="160" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" LastChildFill="True">
 					<TextBlock Text="Playlists" FontSize="15" Background="#FF00B9FF" DockPanel.Dock="Top" Padding="5,0,0,0" Height="20"></TextBlock>
 					<ListBox Name="playlistListBox" SelectionChanged="playlistListBox_SelectionChanged" Background="Transparent" ItemContainerStyle="{DynamicResource ListListBoxItemStyle}">
-						<ListBox.ItemTemplate>
-							<DataTemplate>
-								<StackPanel Orientation="Horizontal">
-                                    <StackPanel.ContextMenu>
-                                        <ContextMenu>
-                                            <MenuItem Header="Edit"></MenuItem>
-                                            <MenuItem Header="Remove"></MenuItem>
-                                        </ContextMenu>
-                                    </StackPanel.ContextMenu>
-                                    <Image Source="Icons/playlist.png" Height="20" Width="20" RenderOptions.BitmapScalingMode="HighQuality" Margin="10,0,0,0"></Image>
-									<TextBlock Text="{Binding PlayListName}" Margin="5,0,0,0" Height="20" FontSize="15"/>
-								</StackPanel>
-
-							</DataTemplate>
-						</ListBox.ItemTemplate>
+						
+						<!--<ListBox.ContextMenu>
+							<ContextMenu>
+								<MenuItem Header="Rename" Click="PlaylistRenameMenuItem_Click"></MenuItem>
+								<MenuItem Header="Delete" Click="PlaylistDeleteMenuItem_Click"></MenuItem>
+							</ContextMenu>
+						</ListBox.ContextMenu>-->
 					</ListBox>
 				</DockPanel>
 			</Border>
 			<ListBox Name="musicListBox" BorderThickness="0,1,1,1" Width="Auto" DockPanel.Dock="Right" Background="Azure" SelectionChanged="MusicListBox_SelectionChanged" BorderBrush="#FF00B9FF" ItemContainerStyle="{DynamicResource MusicListBoxItem}" >
+				<ListBox.ContextMenu>
+					<ContextMenu>
+						<MenuItem Header="Delete" Click ="MusicDeleteMenuItem_Click"></MenuItem>
+					</ContextMenu>
+				</ListBox.ContextMenu>
 			</ListBox>
 		</DockPanel>
 		<Border Grid.Row="2" Background="#FF8CDAEE">
@@ -464,14 +518,19 @@
 				<StackPanel Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
 					<Border CornerRadius="25" BorderThickness="1" BorderBrush="SteelBlue" Margin="3" Background="#FF40B8D6" Padding="0,0,5,0">
 						<StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
-							<Button Name="selfRepeat" Click="SelfRepeat_Click"  VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
-								<Image Source="Icons/repeat0.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-							</Button>
-							<Button Name="sequenRepeat" Click="SequenRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
-								<Image Source="Icons/repeat1.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
-							</Button>
-							<Button Name="randomRepeat" Click="RandomRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
+							<Grid>
+								<Button Visibility="Hidden" Tag="chose" Name="selfRepeatButton" Click="SelfRepeat_Click"  VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
+									<Image Source="Icons/repeat0.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+								</Button>
+								<Button Name="infinityRepeatButton" Click="SequenRepeat_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
+									<Image Source="Icons/repeat1.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+								</Button>
+							</Grid>
+							<Button Name="randomNextButton" Click="RandomNext_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5" Style="{DynamicResource RepeatButtonStyle}">
 								<Image Source="Icons/repeat3.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
+							</Button>
+							<Button Name="stopButton" Click="StopButton_Click" VerticalAlignment="Center" HorizontalAlignment="Center" Height="30" Width="30" Background="Transparent" Padding="5" BorderThickness="0" Margin="5"  Style="{DynamicResource PlayButtonStyle}">
+								<Image Source="Icons/stop.png" Stretch="Fill" RenderOptions.BitmapScalingMode="HighQuality"></Image>
 							</Button>
 
 							<Button VerticalAlignment="Center" HorizontalAlignment="Center" Height="25" Width="40" Background="Transparent" Padding="3" BorderThickness="0" Margin="5" Style="{DynamicResource RectangleButtonStyle}" Click="PreviousButton_Click">
