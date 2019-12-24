@@ -93,8 +93,8 @@ namespace MyMusic
 		{
 			_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
 			var index = musicListBox.SelectedIndex;
-            var playlist = playlistListBox.SelectedItem as PlayList;
-			if (playlistListBox.SelectedIndex < 0) return;
+            var playlist = PlayLists.SelectedItem as PlayList;
+			if (PlayLists.SelectedIndex < 0) return;
 			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
@@ -139,9 +139,9 @@ namespace MyMusic
 
 		private void addSongMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			if (playlistListBox.SelectedIndex >= 0)
+			if (PlayLists.SelectedIndex >= 0)
 			{
-				var playlist = playlistListBox.SelectedItem as PlayList;
+				var playlist = PlayLists.SelectedItem as PlayList;
 				var screen = new Microsoft.Win32.OpenFileDialog();
 				screen.Multiselect = true;
                 screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
@@ -163,7 +163,7 @@ namespace MyMusic
 
 		private void playlistListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var playList = playlistListBox.SelectedItem as PlayList;
+			var playList = PlayLists.SelectedItem as PlayList;
 			musicListBox.ItemsSource = playList.ItemList;
 			if (_isPlaying == true)
 			{
@@ -315,8 +315,8 @@ namespace MyMusic
 		private void NextButton_Click(object sender, RoutedEventArgs e)
 		{
 			var index = musicListBox.SelectedIndex;
-			var playlist = playlistListBox.SelectedItem as PlayList;
-			if (playlistListBox.SelectedIndex < 0) return;
+			var playlist = PlayLists.SelectedItem as PlayList;
+			if (PlayLists.SelectedIndex < 0) return;
 			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
@@ -465,6 +465,36 @@ namespace MyMusic
             SavePlayList();
         }
 
-        
+        private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if (e.Key == Key.Space)
+            {
+                PlayButton_Click(sender, null);
+            }
+            if (e.Key == Key.Right)
+            {
+                progressSlider.Value = progressSlider.Value + 1200;
+            }
+            if (e.Key == Key.Left)
+            {
+                progressSlider.Value = progressSlider.Value - 1200;
+            }
+        }
+
+        private void PlayLists_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var playList = PlayLists.SelectedItem as PlayList;
+            musicListBox.ItemsSource = playList.ItemList;
+            if (_isPlaying == true)
+            {
+                playButtonIcon.Source = _playBitmapImage;
+                _player.Stop();
+                _timer.Stop();
+                _player.Close();
+                _isPlaying = !_isPlaying;
+                _playedSongs.Clear();
+                _nextSongs.Clear();
+            }
+        }
     }
 }
