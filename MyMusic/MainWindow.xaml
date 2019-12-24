@@ -426,7 +426,7 @@
 			<Border BorderThickness="1" BorderBrush="#FF00B9FF">
 				<DockPanel Width="160" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" LastChildFill="True">
 					<TextBlock Text="Playlists" FontSize="15" Background="#FF00B9FF" DockPanel.Dock="Top" Padding="5,0,0,0" Height="20"></TextBlock>
-					<ListBox Name="PlayLists" SelectionChanged="PlayLists_SelectionChanged" Background="Transparent" ItemContainerStyle="{DynamicResource ListListBoxItemStyle}">
+					<ListBox Name="playlistListBox" SelectionChanged="playlistListBox_SelectionChanged" Background="Transparent" ItemContainerStyle="{DynamicResource ListListBoxItemStyle}">
 						<ListBox.ItemTemplate>
 							<DataTemplate>
 								<StackPanel Orientation="Horizontal">

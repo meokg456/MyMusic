@@ -60,8 +60,8 @@ namespace MyMusic
 
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
-            //LoadPlayList();
-			PlayLists.ItemsSource = _listPlay;
+            LoadPlayList();
+			playlistListBox.ItemsSource = _listPlay;
 			_timer = new DispatcherTimer();
 			_timer.Interval = TimeSpan.FromMilliseconds(250);
 			_timer.Tick += timer_Tick;
@@ -93,8 +93,8 @@ namespace MyMusic
 		{
 			_playedSongs.Push(musicListBox.SelectedItem as FileInfo);
 			var index = musicListBox.SelectedIndex;
-            var playlist = PlayLists.SelectedItem as PlayList;
-			if (PlayLists.SelectedIndex < 0) return;
+            var playlist = playlistListBox.SelectedItem as PlayList;
+			if (playlistListBox.SelectedIndex < 0) return;
 			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
@@ -139,9 +139,9 @@ namespace MyMusic
 
 		private void addSongMenuItem_Click(object sender, RoutedEventArgs e)
 		{
-			if (PlayLists.SelectedIndex >= 0)
+			if (playlistListBox.SelectedIndex >= 0)
 			{
-				var playlist = PlayLists.SelectedItem as PlayList;
+				var playlist = playlistListBox.SelectedItem as PlayList;
 				var screen = new Microsoft.Win32.OpenFileDialog();
 				screen.Multiselect = true;
                 screen.Filter = "music files (*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless)|*.mp3;*.acc;*.flac;*.wma;*.avc;*.lossless|All files (*.*)|*.*";
@@ -163,7 +163,7 @@ namespace MyMusic
 
 		private void playlistListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
 		{
-			var playList = PlayLists.SelectedItem as PlayList;
+			var playList = playlistListBox.SelectedItem as PlayList;
 			musicListBox.ItemsSource = playList.ItemList;
 			if (_isPlaying == true)
 			{
@@ -315,8 +315,8 @@ namespace MyMusic
 		private void NextButton_Click(object sender, RoutedEventArgs e)
 		{
 			var index = musicListBox.SelectedIndex;
-			var playlist = PlayLists.SelectedItem as PlayList;
-			if (PlayLists.SelectedIndex < 0) return;
+			var playlist = playlistListBox.SelectedItem as PlayList;
+			if (playlistListBox.SelectedIndex < 0) return;
 			var count = playlist.ItemList.Count;
 			if (repeatOption == RepeatOption.NoRepeat)
 			{
@@ -341,35 +341,6 @@ namespace MyMusic
 		}
 
         string FileNamePlayList = "PlayList.txt";
-        private void saveMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var writePlayList = new StreamWriter(FileNamePlayList);
-            //dong dau tien save so luong PlayList
-            writePlayList.WriteLine(_listPlay.Count);
-            if (_listPlay.Count > 0)
-            {
-                //tiep theo la ghi ten cac tap tin chua bai hat cua moi playlist
-                foreach (var item in _listPlay)
-                {
-                    var namePlayList = item.PlayListName + ".txt";
-                    writePlayList.WriteLine(namePlayList);
-
-                    var writeItemList = new StreamWriter(namePlayList);
-                    //dong dau tien save so bai hat
-                    writeItemList.WriteLine(item.ItemList.Count);
-                    if (item.ItemList.Count > 0)
-                    {
-                        foreach (var song in item.ItemList)
-                        {
-                            var urlSong = song.Directory + "\\" + song.Name;
-                            writeItemList.WriteLine(urlSong);
-                        }
-                    }
-                    writeItemList.Close();
-                }
-            }
-            writePlayList.Close();
-        }
 
         private void SavePlayList()
         {
@@ -401,35 +372,6 @@ namespace MyMusic
             writePlayList.Close();
         }
 
-        private void loadMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            var readerPlayList = new StreamReader(FileNamePlayList);
-            var firstLine = readerPlayList.ReadLine();
-            var numPlayList = int.Parse(firstLine);
-
-            if (numPlayList > 0)
-            {
-                for(int i = 0; i < numPlayList; i++)
-                {
-                    var namePlayList = readerPlayList.ReadLine();
-                    var playlist = namePlayList.Replace(".txt", "");
-                    var readerItemList = new StreamReader(namePlayList);
-                    var numItemList = int.Parse(readerItemList.ReadLine());
-                    var iTemListPlay = new PlayList() { PlayListName = playlist, ItemList = new BindingList<FileInfo>() };
-
-                    if (numItemList > 0)
-                    {
-                        for(int j = 0; j < numItemList; j++)
-                        {
-                            var urlSong = readerItemList.ReadLine();
-                            iTemListPlay.ItemList.Add(new FileInfo(urlSong));
-                        }
-                    }
-                    _listPlay.Add(iTemListPlay);
-                }
-            }
-        }
-
         private void LoadPlayList()
         {
             var readerPlayList = new StreamReader(FileNamePlayList);
@@ -444,17 +386,17 @@ namespace MyMusic
                     var playlist = namePlayList.Replace(".txt", "");
                     var readerItemList = new StreamReader(namePlayList);
                     var numItemList = int.Parse(readerItemList.ReadLine());
-                    var iTemListPlay = new PlayList() { PlayListName = playlist, ItemList = new BindingList<FileInfo>() };
+                    var itemListPlay = new PlayList() { PlayListName = playlist, ItemList = new BindingList<FileInfo>() };
 
                     if (numItemList > 0)
                     {
                         for (int j = 0; j < numItemList; j++)
                         {
                             var urlSong = readerItemList.ReadLine();
-                            iTemListPlay.ItemList.Add(new FileInfo(urlSong));
+                            itemListPlay.ItemList.Add(new FileInfo(urlSong));
                         }
                     }
-                    _listPlay.Add(iTemListPlay);
+                    _listPlay.Add(itemListPlay);
                 }
                 countPlayList = numPlayList + 1;
             }
@@ -462,7 +404,9 @@ namespace MyMusic
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            SavePlayList();
+			_hook.KeyUp -= Hook_KeyUp;
+			_hook.Dispose();
+			SavePlayList();
         }
 
         private void Window_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
@@ -481,20 +425,6 @@ namespace MyMusic
             }
         }
 
-        private void PlayLists_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var playList = PlayLists.SelectedItem as PlayList;
-            musicListBox.ItemsSource = playList.ItemList;
-            if (_isPlaying == true)
-            {
-                playButtonIcon.Source = _playBitmapImage;
-                _player.Stop();
-                _timer.Stop();
-                _player.Close();
-                _isPlaying = !_isPlaying;
-                _playedSongs.Clear();
-                _nextSongs.Clear();
-            }
-        }
+       
     }
 }
