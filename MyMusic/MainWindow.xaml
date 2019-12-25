@@ -292,7 +292,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type ListBoxItem}">
-						<Border Tag="Paused" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true" MouseDown="Bd_MouseDown">
+						<Border Tag="Paused" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
 							<StackPanel Orientation="Horizontal">
 								<Image Name="RotateImage" RenderTransformOrigin=".5,.5" Source="Icons/song.png" Height="20" Width="20" RenderOptions.BitmapScalingMode="HighQuality">
 									<Image.RenderTransform>
