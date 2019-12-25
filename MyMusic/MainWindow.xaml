@@ -292,7 +292,7 @@
 			<Setter Property="Template">
 				<Setter.Value>
 					<ControlTemplate TargetType="{x:Type ListBoxItem}">
-						<Border Tag="Paused" x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
+						<Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}" SnapsToDevicePixels="true">
 							<StackPanel Orientation="Horizontal">
 								<Image Name="RotateImage" RenderTransformOrigin=".5,.5" Source="Icons/song.png" Height="20" Width="20" RenderOptions.BitmapScalingMode="HighQuality">
 									<Image.RenderTransform>
@@ -316,7 +316,6 @@
 								<MultiTrigger.Conditions>
 									<Condition Property="Selector.IsSelectionActive" Value="False"/>
 									<Condition Property="IsSelected" Value="True"/>
-									<Condition Property="Tag" SourceName="Bd" Value="Playing"></Condition>
 								</MultiTrigger.Conditions>
 								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
 								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}"/>
@@ -334,7 +333,6 @@
 								<MultiTrigger.Conditions>
 									<Condition Property="Selector.IsSelectionActive" Value="True"/>
 									<Condition Property="IsSelected" Value="True"/>
-									<Condition Property="Tag" SourceName="Bd" Value="Playing"></Condition>
 								</MultiTrigger.Conditions>
 								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"/>
 								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}"/>
@@ -348,40 +346,7 @@
 									</BeginStoryboard>
 								</MultiTrigger.EnterActions>
 							</MultiTrigger>
-							<MultiTrigger>
-								<MultiTrigger.Conditions>
-									<Condition Property="Selector.IsSelectionActive" Value="False"/>
-									<Condition Property="IsSelected" Value="True"/>
-									<Condition Property="Tag" SourceName="Bd" Value="Paused"></Condition>
-								</MultiTrigger.Conditions>
-								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
-								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}"/>
-								<Setter Property="RenderTransform" TargetName="RotateImage">
-									<Setter.Value>
-										<RotateTransform Angle="0" />
-									</Setter.Value>
-								</Setter>
-								<MultiTrigger.EnterActions>
-									<StopStoryboard BeginStoryboardName="Animation1"></StopStoryboard>
-								</MultiTrigger.EnterActions>
-							</MultiTrigger>
-							<MultiTrigger>
-								<MultiTrigger.Conditions>
-									<Condition Property="Selector.IsSelectionActive" Value="True"/>
-									<Condition Property="IsSelected" Value="True"/>
-									<Condition Property="Tag" SourceName="Bd" Value="Paused"></Condition>
-								</MultiTrigger.Conditions>
-								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"/>
-								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}"/>
-								<Setter Property="RenderTransform" TargetName="RotateImage">
-									<Setter.Value>
-										<RotateTransform Angle="0" />
-									</Setter.Value>
-								</Setter>
-								<MultiTrigger.EnterActions>
-									<StopStoryboard BeginStoryboardName="Animation2"></StopStoryboard>
-								</MultiTrigger.EnterActions>
-							</MultiTrigger>
+
 							<Trigger Property="IsEnabled" Value="False">
 								<Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
 							</Trigger>
@@ -412,7 +377,7 @@
 									<ColumnDefinition Width="Auto"></ColumnDefinition>
 								</Grid.ColumnDefinitions>
 								<Image Grid.Column="0" Name="playlistIcon" Source="Icons/playlist.png" Height="20" Width="20" RenderOptions.BitmapScalingMode="HighQuality" ></Image>
-								<TextBox Focusable="False" Grid.Column="1" Cursor="Arrow" IsReadOnly="True" IsReadOnlyCaretVisible="false" Name="playlistName" Text="{Binding PlayListName, Mode=TwoWay}" Margin="5,0,0,0" Height="20" FontSize="15" Background="Transparent" BorderThickness="0" GotFocus="PlaylistName_GotFocus" />
+								<TextBox Focusable="False" Grid.Column="1" Cursor="Arrow" IsReadOnly="True" IsReadOnlyCaretVisible="false" Name="playlistName" Text="{Binding PlayListName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="5,0,0,0" Height="20" FontSize="15" Background="Transparent" BorderThickness="0" GotFocus="PlaylistName_GotFocus" />
 							</Grid>
 							<Border.ContextMenu>
 								<ContextMenu>

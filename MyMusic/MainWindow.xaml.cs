@@ -41,7 +41,6 @@ namespace MyMusic
 		string FileNamePlayList = "PlayList.txt";
 		MenuItem _renameMenuItem;
 		string _renamingFileName;
-		Border _selectedMusicBorder;
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -57,11 +56,22 @@ namespace MyMusic
 			RandomNext = 0,
 			SequenceNext = 1
 		}
-		public class PlayList
+		public class PlayList : INotifyPropertyChanged
 		{
-			public string PlayListName { get; set; }
+			private string _playlistName;
+			public string PlayListName
+			{
+				get
+				{ return _playlistName; }
+				set
+				{
+					_playlistName = value;
+					PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("PlayListName"));
+				}
+			}
 			public BindingList<FileInfo> ItemList;
 
+			public event PropertyChangedEventHandler PropertyChanged;
 		}
 
 		BindingList<PlayList> _playlists = new BindingList<PlayList>();
@@ -76,7 +86,6 @@ namespace MyMusic
 		private void Window_Loaded(object sender, RoutedEventArgs e)
 		{
 			playlistListBox.ItemsSource = _playlists;
-			LoadPlayList();
 			musicListBox.SelectionMode = SelectionMode.Extended;
 			_timer = new DispatcherTimer();
 			_timer.Interval = TimeSpan.FromMilliseconds(250);
@@ -87,6 +96,8 @@ namespace MyMusic
 			_player.Volume = 0.75;
 			_hook = Hook.GlobalEvents();
 			_hook.KeyUp += Hook_KeyUp;
+			LoadPlayList();
+
 		}
 
 		private void Hook_KeyUp(object sender, System.Windows.Forms.KeyEventArgs e)
@@ -214,17 +225,12 @@ namespace MyMusic
 					playButtonIcon.Source = _pauseBitmapImage;
 					_player.Play();
 					_timer.Start();
-					_selectedMusicBorder.Tag = "Playing";
-
-
-
 				}
 				else
 				{
 					playButtonIcon.Source = _playBitmapImage;
 					_player.Pause();
 					_timer.Stop();
-					_selectedMusicBorder.Tag = "Paused";
 				}
 			}
 			else
@@ -242,12 +248,6 @@ namespace MyMusic
 			StopButton_Click(sender, e);
 			_player.Open(new Uri(song.FullName, UriKind.Absolute));
 			while (_player.NaturalDuration.HasTimeSpan == false) ;
-			ListBoxItem item = (ListBoxItem)musicListBox.ItemContainerGenerator.ContainerFromItem(song);
-			if (item == null) return;
-			while (item.HasContent == false) ;
-			var control = item.Template;
-			var presenter = item.Content;
-			_selectedMusicBorder = control.FindName("Bd", item) as Border;
 			musicListBox.ScrollIntoView(song);
 			PlayButton_Click(sender, e);
 		}
@@ -355,8 +355,9 @@ namespace MyMusic
             var writePlayList = new StreamWriter(FileNamePlayList);
             //dong dau tien save so luong PlayList
             writePlayList.WriteLine(_playlists.Count);
-            //dong thu hai save progressSlider
-            writePlayList.WriteLine(progressSlider.Value);
+			//dong thu hai save progressSlider
+			writePlayList.WriteLine(playlistListBox.SelectedIndex);
+
 
             if (_playlists.Count > 0)
             {
@@ -366,35 +367,19 @@ namespace MyMusic
                     var namePlayList = item.PlayListName + ".txt";
                     writePlayList.WriteLine(namePlayList);
                     var playlist = playlistListBox.SelectedItem as PlayList;
-                    if (item.PlayListName == playlist.PlayListName)
-                    {
-                        writePlayList.WriteLine(1);
-                    }
-                    else
-                    {
-                        writePlayList.WriteLine(0);
-                    }
 
                     var writeItemList = new StreamWriter(namePlayList);
                     //dong dau tien save so bai hat
                     writeItemList.WriteLine(item.ItemList.Count);
-                    if (item.ItemList.Count > 0)
+					writeItemList.WriteLine(musicListBox.SelectedIndex);
+
+					if (item.ItemList.Count > 0)
                     {
                         foreach (var song in item.ItemList)
                         {
                             var urlSong = song.Directory + "\\" + song.Name;
                             writeItemList.WriteLine(urlSong);
                             var itemlist = musicListBox.SelectedItem as FileInfo;
-
-                            if (song == itemlist)
-                            {
-                                writeItemList.WriteLine(1);
-                            }
-                            else
-                            {
-                                writeItemList.WriteLine(0);
-                            }
-
                         }
                     }
                     writeItemList.Close();
@@ -410,22 +395,19 @@ namespace MyMusic
 				var readerPlayList = new StreamReader(FileNamePlayList);
 				var firstLine = readerPlayList.ReadLine();
 				var numPlayList = int.Parse(firstLine);
-                var ValueProgressSlider = readerPlayList.ReadLine();
-
-                PlayList playListSelected;
-                FileInfo songSelected;
-
-                if (numPlayList > 0)
+				var secondLine = readerPlayList.ReadLine();
+				var playingPlaylistIndex = int.Parse(secondLine);
+				int playingSongIndex = -1;
+				if (numPlayList > 0)
 				{
 					for (int i = 0; i < numPlayList; i++)
 					{
 						var namePlayList = readerPlayList.ReadLine();
 						var playlist = namePlayList.Replace(".txt", "");
 
-                        var checkPlayList = int.Parse(readerPlayList.ReadLine());
-
                         var readerItemList = new StreamReader(namePlayList);
 						var numItemList = int.Parse(readerItemList.ReadLine());
+						playingSongIndex =  int.Parse(readerItemList.ReadLine());
 						var itemListPlay = new PlayList() { PlayListName = playlist, ItemList = new BindingList<FileInfo>() };
 
 						if (numItemList > 0)
@@ -436,29 +418,22 @@ namespace MyMusic
                                 var song = new FileInfo(urlSong);
                                 itemListPlay.ItemList.Add(song);
 
-                                var checkSong = int.Parse(readerItemList.ReadLine());
-                                if (checkSong == 1)
-                                {
-                                    songSelected = song;
-                                    //musicListBox.SelectedItem = song;
-                                }
                             }
 						}
                         
                         _playlists.Add(itemListPlay);
-
-                        if (checkPlayList == 1)
-                        {
-                            playListSelected = itemListPlay;
-                            //playlistListBox.SelectedItem = itemListPlay;
-                        }
                         readerItemList.Close();
 					}
-					countPlayList = numPlayList + 1;
+					if (playingPlaylistIndex >= 0)
+					{
+						playlistListBox.SelectedItem = _playlists[playingPlaylistIndex];
+					}
+					if(playingSongIndex >= 0)
+					{
+						musicListBox.SelectedItem = _playlists[playingPlaylistIndex].ItemList[playingSongIndex];
+						countPlayList = numPlayList + 1;
+					}
 
-                    playlistListBox.SelectedItem = playListSelected;
-                    musicListBox.SelectedItem as FileInfo = songSelected;
-                    progressSlider.Value = double.Parse(ValueProgressSlider);
                 }
 				readerPlayList.Close();
 			}
@@ -503,9 +478,18 @@ namespace MyMusic
 			{
 				if ((string)_renameMenuItem.Tag == "Clicked")
 				{
-					var playlist = playlistListBox.SelectedItem as PlayList;
-					_renameMenuItem.Tag = "";
-					File.Move(_renamingFileName + ".txt", playlist.PlayListName + ".txt");
+					var index = playlistListBox.SelectedIndex;
+					try
+					{
+
+						_renameMenuItem.Tag = "";
+						File.Move(_renamingFileName + ".txt", _playlists[index].PlayListName + ".txt");
+					}
+					catch(Exception ex)
+					{
+						MessageBox.Show(ex.Message);
+						_playlists[index].PlayListName = _renamingFileName;
+					}
 				}
 			}
 		}
@@ -556,7 +540,6 @@ namespace MyMusic
 					playButtonIcon.Source = _playBitmapImage;
 					_isPlaying = !_isPlaying;
 				}
-				_selectedMusicBorder.Tag = "Paused";
 			}
 		}
 	}
