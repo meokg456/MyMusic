@@ -414,6 +414,7 @@
 								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Background}"/>
 								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedInactive.Border}"/>
 								<Setter Property="Source" TargetName="playlistIcon" Value="Icons/choose icon.png"></Setter>
+								<Setter Property="Height" TargetName="playlistIcon" Value="15"></Setter>
 							</MultiTrigger>
 							<MultiTrigger>
 								<MultiTrigger.Conditions>
@@ -423,6 +424,7 @@
 								<Setter Property="Background" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Background}"/>
 								<Setter Property="BorderBrush" TargetName="Bd" Value="{StaticResource Item.SelectedActive.Border}"/>
 								<Setter Property="Source" TargetName="playlistIcon" Value="Icons/choose icon.png"></Setter>
+								<Setter Property="Height" TargetName="playlistIcon" Value="15"></Setter>
 							</MultiTrigger>
 							<Trigger Property="IsEnabled" Value="False">
 								<Setter Property="TextElement.Foreground" TargetName="Bd" Value="{DynamicResource {x:Static SystemColors.GrayTextBrushKey}}"/>
@@ -468,7 +470,7 @@
 			</ListBox>
 		</DockPanel>
 		<Border Grid.Row="2" Background="#FF8CDAEE">
-			<Grid Name="musicGrid" Margin="10,10,10,0">
+			<Grid Margin="10,10,10,0">
 				<Grid.RowDefinitions>
 					<RowDefinition Height="1.2*"></RowDefinition>
 					<RowDefinition Height="1*"></RowDefinition>
