@@ -143,7 +143,6 @@ namespace MyMusic
 				} while (index == oldIndex && count > 1);
 			}
 			musicListBox.SelectedItem = playlist.ItemList[index];
-
 		}
 		private void _player_MediaOpened(object sender, EventArgs e)
 		{
@@ -172,8 +171,9 @@ namespace MyMusic
 					{
 						var info = new FileInfo(fileName);
 						playlist.ItemList.Add(info);
-						musicListBox.ScrollIntoView(playlist.ItemList[playlist.ItemList.Count - 1]);
+						
 					}
+					musicListBox.ScrollIntoView(playlist.ItemList[playlist.ItemList.Count - 1]);
 					musicListBox.ScrollIntoView(playlist.ItemList[0]);
 				}
 
@@ -216,6 +216,8 @@ namespace MyMusic
 					_timer.Start();
 					_selectedMusicBorder.Tag = "Playing";
 
+
+
 				}
 				else
 				{
@@ -237,9 +239,11 @@ namespace MyMusic
 			if (musicListBox.SelectedItems.Count > 1) return;
 			var song = musicListBox.SelectedItem as FileInfo;
 			if (song == null) return;
+			StopButton_Click(sender, e);
 			_player.Open(new Uri(song.FullName, UriKind.Absolute));
 			while (_player.NaturalDuration.HasTimeSpan == false) ;
 			ListBoxItem item = (ListBoxItem)musicListBox.ItemContainerGenerator.ContainerFromItem(song);
+			if (item == null) return;
 			while (item.HasContent == false) ;
 			var control = item.Template;
 			var presenter = item.Content;
@@ -508,17 +512,7 @@ namespace MyMusic
 			{
 				playlist.ItemList.Remove(songs[0] as FileInfo);
 			}
-
-		}
-
-		private void Bd_MouseDown(object sender, MouseButtonEventArgs e)
-		{
-			//if (Keyboard.IsKeyDown(Key.LeftShift) == false && Keyboard.IsKeyDown(Key.LeftShift) == false)
-			//{
-			//	if (_selectedMusicBorder != null)
-			//		_selectedMusicBorder.Tag = "Paused";
-			//	_selectedMusicBorder = sender as Border;
-			//}
+			StopButton_Click(sender, e);
 		}
 
 		private void StopButton_Click(object sender, RoutedEventArgs e)
