@@ -436,7 +436,11 @@ namespace MyMusic
 
                 }
 				readerPlayList.Close();
-			}
+
+                playlistListBox.SelectedItem = _playlists[playListSelected];
+                musicListBox.SelectedItem = _playlists[playListSelected].ItemList[songSelected];
+                progressSlider.Value = ValueProgressSlider;
+            }
 			catch(Exception ex)
 			{
 
