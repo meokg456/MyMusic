@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows;
@@ -354,6 +355,9 @@ namespace MyMusic
             var writePlayList = new StreamWriter(FileNamePlayList);
             //dong dau tien save so luong PlayList
             writePlayList.WriteLine(_playlists.Count);
+            //dong thu hai save progressSlider
+            writePlayList.WriteLine(progressSlider.Value);
+
             if (_playlists.Count > 0)
             {
                 //tiep theo la ghi ten cac tap tin chua bai hat cua moi playlist
@@ -361,6 +365,15 @@ namespace MyMusic
                 {
                     var namePlayList = item.PlayListName + ".txt";
                     writePlayList.WriteLine(namePlayList);
+                    var playlist = playlistListBox.SelectedItem as PlayList;
+                    if (item.PlayListName == playlist.PlayListName)
+                    {
+                        writePlayList.WriteLine(1);
+                    }
+                    else
+                    {
+                        writePlayList.WriteLine(0);
+                    }
 
                     var writeItemList = new StreamWriter(namePlayList);
                     //dong dau tien save so bai hat
@@ -371,6 +384,17 @@ namespace MyMusic
                         {
                             var urlSong = song.Directory + "\\" + song.Name;
                             writeItemList.WriteLine(urlSong);
+                            var itemlist = musicListBox.SelectedItem as FileInfo;
+
+                            if (song == itemlist)
+                            {
+                                writeItemList.WriteLine(1);
+                            }
+                            else
+                            {
+                                writeItemList.WriteLine(0);
+                            }
+
                         }
                     }
                     writeItemList.Close();
@@ -386,14 +410,21 @@ namespace MyMusic
 				var readerPlayList = new StreamReader(FileNamePlayList);
 				var firstLine = readerPlayList.ReadLine();
 				var numPlayList = int.Parse(firstLine);
+                var ValueProgressSlider = readerPlayList.ReadLine();
 
-				if (numPlayList > 0)
+                PlayList playListSelected;
+                FileInfo songSelected;
+
+                if (numPlayList > 0)
 				{
 					for (int i = 0; i < numPlayList; i++)
 					{
 						var namePlayList = readerPlayList.ReadLine();
 						var playlist = namePlayList.Replace(".txt", "");
-						var readerItemList = new StreamReader(namePlayList);
+
+                        var checkPlayList = int.Parse(readerPlayList.ReadLine());
+
+                        var readerItemList = new StreamReader(namePlayList);
 						var numItemList = int.Parse(readerItemList.ReadLine());
 						var itemListPlay = new PlayList() { PlayListName = playlist, ItemList = new BindingList<FileInfo>() };
 
@@ -402,14 +433,33 @@ namespace MyMusic
 							for (int j = 0; j < numItemList; j++)
 							{
 								var urlSong = readerItemList.ReadLine();
-								itemListPlay.ItemList.Add(new FileInfo(urlSong));
-							}
+                                var song = new FileInfo(urlSong);
+                                itemListPlay.ItemList.Add(song);
+
+                                var checkSong = int.Parse(readerItemList.ReadLine());
+                                if (checkSong == 1)
+                                {
+                                    songSelected = song;
+                                    //musicListBox.SelectedItem = song;
+                                }
+                            }
 						}
-						_playlists.Add(itemListPlay);
-						readerItemList.Close();
+                        
+                        _playlists.Add(itemListPlay);
+
+                        if (checkPlayList == 1)
+                        {
+                            playListSelected = itemListPlay;
+                            //playlistListBox.SelectedItem = itemListPlay;
+                        }
+                        readerItemList.Close();
 					}
 					countPlayList = numPlayList + 1;
-				}
+
+                    playlistListBox.SelectedItem = playListSelected;
+                    musicListBox.SelectedItem as FileInfo = songSelected;
+                    progressSlider.Value = double.Parse(ValueProgressSlider);
+                }
 				readerPlayList.Close();
 			}
 			catch(Exception ex)
