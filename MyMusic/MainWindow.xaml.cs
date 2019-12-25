@@ -78,7 +78,12 @@ namespace MyMusic
 		int countPlayList = 1;
 		private void newPlaylistMenuItem_Click(object sender, RoutedEventArgs e)
 		{
+			while (File.Exists($"Play List {countPlayList}.txt"))
+			{
+				countPlayList++;
+			}
 			_playlists.Add(new PlayList() { PlayListName = $"Play List {countPlayList}", ItemList = new BindingList<FileInfo>() });
+
 			File.Create($"Play List {countPlayList}.txt").Close();
 			countPlayList++;
 		}
@@ -431,15 +436,12 @@ namespace MyMusic
 					if(playingSongIndex >= 0)
 					{
 						musicListBox.SelectedItem = _playlists[playingPlaylistIndex].ItemList[playingSongIndex];
-						countPlayList = numPlayList + 1;
-					}
 
-                }
+					}
+					countPlayList = numPlayList + 1;
+				}
 				readerPlayList.Close();
 
-                playlistListBox.SelectedItem = _playlists[playListSelected];
-                musicListBox.SelectedItem = _playlists[playListSelected].ItemList[songSelected];
-                progressSlider.Value = ValueProgressSlider;
             }
 			catch(Exception ex)
 			{
