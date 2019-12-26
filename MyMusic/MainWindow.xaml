@@ -453,12 +453,6 @@
 					<TextBlock Text="Playlists" FontSize="15" Background="#FF00B9FF" DockPanel.Dock="Top" Padding="5,0,0,0" Height="20"></TextBlock>
 					<ListBox Name="playlistListBox" SelectionChanged="playlistListBox_SelectionChanged" Background="Transparent" ItemContainerStyle="{DynamicResource ListListBoxItemStyle}">
 						
-						<!--<ListBox.ContextMenu>
-							<ContextMenu>
-								<MenuItem Header="Rename" Click="PlaylistRenameMenuItem_Click"></MenuItem>
-								<MenuItem Header="Delete" Click="PlaylistDeleteMenuItem_Click"></MenuItem>
-							</ContextMenu>
-						</ListBox.ContextMenu>-->
 					</ListBox>
 				</DockPanel>
 			</Border>

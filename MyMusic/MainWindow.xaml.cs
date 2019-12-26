@@ -2,9 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Forms;
@@ -13,7 +11,6 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using Button = System.Windows.Controls.Button;
-using ListBox = System.Windows.Controls.ListBox;
 using MenuItem = System.Windows.Controls.MenuItem;
 using MessageBox = System.Windows.MessageBox;
 using SelectionMode = System.Windows.Controls.SelectionMode;
@@ -38,7 +35,7 @@ namespace MyMusic
 		IKeyboardMouseEvents _hook;
 		Stack<FileInfo> _playedSongs = new Stack<FileInfo>();
 		Stack<FileInfo> _nextSongs = new Stack<FileInfo>();
-		string FileNamePlayList = "PlayList.txt";
+		string _fileNamePlayList = "PlayList.txt";
 		MenuItem _renameMenuItem;
 		string _renamingFileName;
 
@@ -437,15 +434,7 @@ namespace MyMusic
 		{
             try
             {
-                _player.IsMuted = !_player.IsMuted;
-                if (_player.IsMuted == true)
-                {
-                    muteButtonIcon.Source = _muteBitmapImage;
-                }
-                else
-                {
-                    muteButtonIcon.Source = _volumeBitmapImage;
-                }
+				_player.Volume = volumeSlider.Value / 100;
             }
             catch(Exception ex)
             {
@@ -497,7 +486,7 @@ namespace MyMusic
         {
             try
             {
-                var writePlayList = new StreamWriter(FileNamePlayList);
+                var writePlayList = new StreamWriter(_fileNamePlayList);
                 //dong dau tien save so luong PlayList
                 writePlayList.WriteLine(_playlists.Count);
                 //dong thu hai save progressSlider
@@ -542,7 +531,12 @@ namespace MyMusic
         {
 			try
 			{
-				var readerPlayList = new StreamReader(FileNamePlayList);
+				if (File.Exists(_fileNamePlayList) == false)
+				{
+					File.Create(_fileNamePlayList);
+					return;
+				}
+				var readerPlayList = new StreamReader(_fileNamePlayList);
 				var firstLine = readerPlayList.ReadLine();
 				var numPlayList = int.Parse(firstLine);
 				var secondLine = readerPlayList.ReadLine();
