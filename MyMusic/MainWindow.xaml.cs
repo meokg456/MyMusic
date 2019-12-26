@@ -548,5 +548,14 @@ namespace MyMusic
 				}
 			}
 		}
+
+		private void GuideMenuItem_Click(object sender, RoutedEventArgs e)
+		{
+			var screen = new GuideWindow();
+			if (screen.ShowDialog() == true)
+			{
+
+			}
+		}
 	}
 }

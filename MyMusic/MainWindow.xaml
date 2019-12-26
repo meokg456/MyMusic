@@ -445,6 +445,7 @@
 		<Menu Grid.Row="0" Background="#FF00B9FF" BorderBrush="#FF0068FF" BorderThickness="1" >
 			<MenuItem Header="New playlist" Click="newPlaylistMenuItem_Click" BorderBrush="#FF0068FF" BorderThickness="0,0,1,0" FontSize="15" Height="20"></MenuItem>
 			<MenuItem Header="Add musics" Click="addSongMenuItem_Click" BorderBrush="#FF0068FF" BorderThickness="0,0,1,0" FontSize="15" Height="20"></MenuItem>
+			<MenuItem Header="Guide" Click="GuideMenuItem_Click" BorderBrush="#FF0068FF" BorderThickness="0,0,1,0" FontSize="15" Height="20"></MenuItem>
 		</Menu>
 		<DockPanel Background="Azure" Height="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualHeight}" Width="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=ActualWidth}" Canvas.Top="18" LastChildFill="True" Grid.Row="1">
 			<Border BorderThickness="1" BorderBrush="#FF00B9FF">
