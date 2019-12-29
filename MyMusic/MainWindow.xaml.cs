@@ -533,7 +533,8 @@ namespace MyMusic
 			{
 				if (File.Exists(_fileNamePlayList) == false)
 				{
-					File.Create(_fileNamePlayList);
+					var stream = File.Create(_fileNamePlayList);
+					stream.Close();
 					return;
 				}
 				var readerPlayList = new StreamReader(_fileNamePlayList);
